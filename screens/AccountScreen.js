@@ -26,6 +26,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {OPENCAGE_API_KEY, YAHOO_API_KEY} from '@env';
 import {Image} from 'react-native';
 import Profile from '../components/Profile';
+import Animated_loader from './Animated_Component/Loader';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -119,12 +120,9 @@ export default function AccountScreen() {
           .then(response => response.json())
           .then(data => {
             const address = data.items.map((i, l) => i.address);
-            const address123 = data.items.map((i, l) => i.address);
 
-            console.log('Yahoo_City_data', address[0]);
-
-            // console.log('Yahoo_City_data', address123);
-            // setYahooAddress(address[0]);
+            // console.log('Yahoo_City_data', address[0]);
+            setYahooAddress(address[0]);
             setIsloading(false);
           })
 
@@ -142,14 +140,13 @@ export default function AccountScreen() {
   };
 
   useEffect(() => {
-    // getCurrentAddress();
-    // getCurrentAddress_hereMap();
+    getCurrentAddress();
   }, []);
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
-      {isLoading && <ActivityIndicator size={'large'} />}
+      {isLoading && <Animated_loader />}
       <Profile />
       <Formik
         initialValues={{

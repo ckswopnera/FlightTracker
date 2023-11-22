@@ -16,6 +16,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Dimensions} from 'react-native';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -100,7 +101,7 @@ export const Avatar = props => {
         index={1}
         snapPoints={snapPoints}
         backgroundStyle={{
-          backgroundColor: '#fff',
+          backgroundColor: Colors.light,
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           marginHorizontal: 4,
