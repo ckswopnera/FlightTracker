@@ -25,6 +25,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {OPENCAGE_API_KEY, YAHOO_API_KEY} from '@env';
 import {Image} from 'react-native';
+import Profile from '../components/Profile';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -55,7 +56,7 @@ export default function AccountScreen() {
         )
           .then(response => response.json())
           .then(data => {
-            console.log('City_data', data);
+            // console.log('City_data', data);
             setAddress(data);
             // Extract city and country information from the response
             const city =
@@ -89,7 +90,7 @@ export default function AccountScreen() {
 
       const country = countries.find(c => c.cca2 === country_code);
       if (country) {
-        console.log('Country Details:', country);
+        // console.log('Country Details:', country);
         setCountry({
           cca2: country?.cca2,
           callingCode: country?.callingCode[0],
@@ -123,7 +124,7 @@ export default function AccountScreen() {
             console.log('Yahoo_City_data', address[0]);
 
             // console.log('Yahoo_City_data', address123);
-            setYahooAddress(address[0]);
+            // setYahooAddress(address[0]);
             setIsloading(false);
           })
 
@@ -141,18 +142,21 @@ export default function AccountScreen() {
   };
 
   useEffect(() => {
-    getCurrentAddress();
+    // getCurrentAddress();
     // getCurrentAddress_hereMap();
   }, []);
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic">
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
       {isLoading && <ActivityIndicator size={'large'} />}
+      <Profile />
       <Formik
         initialValues={{
           name: '',
           email: '',
           // password: '',
-          country: country?.cca2,
+          country: country?.cca2 || '',
           address: YahooAddress?.label || '',
           address2: '',
           city: YahooAddress?.city || '',
@@ -194,6 +198,8 @@ export default function AccountScreen() {
             phonenumber: `${country?.callingCode + values?.phonenumber}`,
             pincode: values?.pincode,
             state: values?.state,
+            countryCode: values?.country,
+            country: country,
           });
 
           console.log({allfieldValues});
@@ -486,7 +492,7 @@ export default function AccountScreen() {
                           textAlign: 'center',
                           position: 'absolute',
                           bottom: 0,
-                          right: 0,
+                          right: 3,
                         }}>
                         {errors.country}
                       </Text>
@@ -569,7 +575,7 @@ export default function AccountScreen() {
                         textAlign: 'center',
                         position: 'absolute',
                         bottom: 15,
-                        right: 0,
+                        right: 3,
                       }}>
                       {errors.state}
                     </Text>
@@ -610,7 +616,10 @@ export default function AccountScreen() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    width: '88%',
+                    width:
+                      country?.callingCode?.length !== undefined
+                        ? '88%'
+                        : '100%',
                     alignItems: 'center',
                     justifyContent: 'flex-start',
                     // height: 50,

@@ -27,7 +27,10 @@ import AccountScreen from './screens/AccountScreen';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Geolocation from '@react-native-community/geolocation';
 import StackScreen from './screens/StackScreen';
-
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from '@gorhom/bottom-sheet';
 function App() {
   const [city, setcity] = useState();
   const Tabs = AnimatedTabBarNavigator();
@@ -85,7 +88,9 @@ out center;
     // flightApi()
   }, []);
   return (
+    
     <GestureHandlerRootView style={{flex: 1}}>
+      <BottomSheetModalProvider>
       <NavigationContainer>
         <SafeAreaView style={{backgroundColor: Colors.lighter, flex: 1}}>
           <StatusBar
@@ -166,7 +171,9 @@ out center;
           </Tabs.Navigator>
         </SafeAreaView>
       </NavigationContainer>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
+    
   );
 }
 

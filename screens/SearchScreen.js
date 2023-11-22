@@ -43,8 +43,8 @@ const CustomTabIcon = ({route, focused}) => {
     <View
       style={{
         backgroundColor: focused == true ? 'yellow' : 'rgba(0,0,0,0.8)',
-        height: 65,
-        width: 65,
+        height: 55,
+        width: 55,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'center',
@@ -117,8 +117,8 @@ export default function SearchScreen() {
               activeTintColor: '#ffffff',
               tabBarStyle: {backgroundColor: '#f3f3f3', height: 90},
               tabBarIconStyle: {
-                height: 65,
-                width: 65,
+                height: 55,
+                width: 55,
                 // backgroundColor:'red',
                 alignItems: 'center',
                 justifyContent: 'center',

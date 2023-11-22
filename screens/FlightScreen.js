@@ -26,6 +26,7 @@ const windowWidth = Dimensions.get('window').width;
 export default function FlightScreen() {
   return (
     <ScrollView
+      showsVerticalScrollIndicator={false}
       contentContainerStyle={{
         justifyContent: 'center',
         alignItems: 'flex-start',
@@ -143,12 +144,13 @@ export default function FlightScreen() {
         </Text>
         <ScrollView
           horizontal
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
             paddingTop: 10,
-            paddingBottom:40,
+            paddingBottom: 40,
           }}>
           {imageLinks.map((item, index) => {
             //   console.log({item})
@@ -165,7 +167,7 @@ export default function FlightScreen() {
                 }}>
                 <Image
                   source={item.src}
-                  style={{height: 100, width: 100,borderRadius: 8,}}
+                  style={{height: 100, width: 100, borderRadius: 8}}
                   resizeMode="contain"
                 />
                 <Text style={{color: '#000', textAlign: 'center'}}>
