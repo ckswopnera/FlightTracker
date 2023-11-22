@@ -82,7 +82,6 @@ out center;
   useEffect(() => {
     // console.log('url', aviation_url + '&departure_iata=CCU');
     airportCheck();
-    // getCurrentAddress();
     // flightApi()
   }, []);
   return (

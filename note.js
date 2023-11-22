@@ -1,93 +1,78 @@
-import {View, Text, ScrollView, FlatList} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {Component, useEffect, useState} from 'react';
+
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  Dimensions,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
+import CountryPicker, {
+  DARK_THEME,
+  TranslationLanguageCodeList,
+  getAllCountries,
+} from 'react-native-country-picker-modal';
 import Geolocation from '@react-native-community/geolocation';
-import {ListItem} from '@rneui/themed';
+import {Field, Formik} from 'formik';
+import * as Yup from 'yup';
+import 'yup-phone-lite';
+import {colors} from '../util/colors';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {BottomSheet, Button, Divider, Input} from '@rneui/base';
-import {StyleSheet} from 'react-native';
-import {ActivityIndicator} from 'react-native';
+import {OPENCAGE_API_KEY, YAHOO_API_KEY} from '@env';
 
-export default function EmergencyScreen() {
-  const [hospitalData, sethospitalData] = useState();
-  const [searchHospitalName, setsearchHospitalName] = useState();
-  const [isVisibleDiameter, setIsVisibleDiameter] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const [radius_hospital, setradius_hospital] = useState(2000);
-  const [isLoading, setisLoading] = useState(true);
+const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get('window').width;
+export default function AccountScreen() {
+  const [Address, setAddress] = useState();
+  const [YahooAddress, setYahooAddress] = useState();
 
-  // const radius_hospital = 5000;
-  const list = [
-    {
-      title: 'Within 2 Km',
-      value: 2000,
-      // onPress: () => {setradius_hospital(2000);setIsVisibleDiameter(false)},
-    },
-    {
-      title: 'Within 5 Km',
-      value: 5000,
-    },
-    {
-      title: 'Within 10Km',
-      value: 10000,
-    },
-    {
-      title: 'Within 20Km',
-      value: 20000,
-    },
+  const [allfieldValues, setallfieldValues] = useState();
+  const [isvisible, setIsvisible] = useState(false);
+  const [isLoading, setIsloading] = useState(false);
 
-    {
-      title: 'Cancel',
-      containerStyle: {backgroundColor: 'red'},
-      titleStyle: {color: 'white'},
-      onPress: () => setIsVisibleDiameter(false),
-    },
-  ];
-  useEffect(() => {
-    hospitalCheck();
-  }, [radius_hospital]);
-  const hospitalCheck = async () => {
-    setisLoading(true);
+  const [country, setCountry] = useState();
+  const [countryDetails, setCountryDetails] = useState(null);
 
-    sethospitalData([]);
+  const requiredSchema = Yup.string().required('*required');
+  const min2Schema = Yup.string().min(2, 'Seems a bit short...');
+  const nameRegExp =
+    /^(?:((([^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]'’,\-.\s])){1,}(['’,\-\.]){0,1}){2,}(([^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]'’,\-. ]))*(([ ]+){0,1}(((([^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]'’,\-\.\s])){1,})(['’\-,\.]){0,1}){2,}((([^0-9_!¡?÷?¿/\\+=@#$%ˆ&*(){}|~<>;:[\]'’,\-\.\s])){2,})?)*)$/;
+  const pincodeRegExp = /^[0-9]*$/;
 
-    const overpassEndpoint = 'https://overpass-api.de/api/interpreter';
+  const getCurrentAddress = async () => {
+    setIsloading(true);
     await Geolocation.getCurrentPosition(
       info => {
-        // console.log({info});
         const {latitude, longitude} = info.coords;
-        const overpassQuery = `
-    [out:json];
-    node(around:${radius_hospital},${latitude}, ${longitude})["amenity"="hospital"];
-    out;
-    `;
-        fetch(overpassEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `data=${encodeURIComponent(overpassQuery)}`,
-        })
+        // Make a request to the Nominatim API for reverse geocoding
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+        )
           .then(response => response.json())
           .then(data => {
-            // Handle the response data here
-            // console.log(data);
-            const hospital_dictrict_data = data.elements.map(
-              (item, index) => item.tags,
-              // item.tags['addr:district'],
-            );
-            // console.log({hospital_dictrict_data});
-            sethospitalData(hospital_dictrict_data);
+            // console.log('City_data', data);
+            setAddress(data);
+            // Extract city and country information from the response
+            const city =
+              data.address.city ||
+              data.address.town ||
+              data.address.village ||
+              data.address.hamlet;
+            const country = data.address.country;
+            const country_code = data.address.country_code.toUpperCase();
+
+            // console.log({city});
+
+            // fetchData(country_code);
+            
           })
-          .catch(
-            error => {
-              // Handle errors here
-              console.error('Error:', error);
-            },
-            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-          );
-        setTimeout(() => {
-          setisLoading(false);
-        }, 3000);
+
+          .catch(error => {
+            // Handle errors
+            console.error('Error:', error);
+          });
       },
       error => {
         // Handle geolocation errors
@@ -96,98 +81,599 @@ export default function EmergencyScreen() {
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
     );
   };
+
+  const getCurrentAddress_hereMap = async () => {
+    // setIsloading(true);
+
+    await Geolocation.getCurrentPosition(
+      info => {
+        const {latitude, longitude} = info.coords;
+        // Make a request to the Nominatim API for reverse geocoding
+        fetch(
+          `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${latitude},${longitude}&lang=en-US&apiKey=${YAHOO_API_KEY}`,
+        )
+          .then(response => response.json())
+          .then(data => {
+            const address = data.items.map((i, l) => i.address);
+            const address123 = data.items.map((i, l) => i.address);
+
+            console.log('Yahoo_City_data', address[0]);
+
+            // console.log('Yahoo_City_data', address123);
+            setYahooAddress(address[0]);
+            setIsloading(false);
+          })
+
+          .catch(error => {
+            // Handle errors
+            console.error('Error:', error);
+          });
+      },
+      error => {
+        // Handle geolocation errors
+        console.error('Geolocation error:', error);
+      },
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+    );
+  };
+  const fetchData = async country_code => {
+    try {
+      const countries = await getAllCountries();
+
+      const country = countries.find(c => c.cca2 === country_code);
+      if (country) {
+        console.log('Country Details:', country);
+        setCountryDetails(country);
+      } else {
+        console.log('Country not found');
+      }
+      getCurrentAddress_hereMap();
+      // setIsloading(false);
+    } catch (error) {
+      console.error('Error fetching country details:', error);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentAddress();
+    getCurrentAddress_hereMap();
+  }, []);
   return (
-    <ScrollView>
-      <ListItem.Accordion
-        content={
-          <>
-            <MaterialCommunityIcons name="hospital" size={40} color="red" />
-            <ListItem.Content>
-              <ListItem.Title style={{fontWeight: 'bold', fontSize: 18}}>
-                Hospital
-              </ListItem.Title>
-            </ListItem.Content>
-            <Button
-              title="Range"
-              onPress={() => setIsVisibleDiameter(true)}
-              buttonStyle={styles.button}
-            />
-            <BottomSheet modalProps={{}} isVisible={isVisibleDiameter}>
-              {list.map((l, i) => (
-                <ListItem
-                  key={i}
-                  containerStyle={l.containerStyle}
-                  onPress={() => {
-                    setradius_hospital(l.value);
-                    setIsVisibleDiameter(false);
-                  }}>
-                  <ListItem.Content>
-                    <ListItem.Title style={l.titleStyle}>
-                      {l.title}
-                    </ListItem.Title>
-                  </ListItem.Content>
-                </ListItem>
-              ))}
-            </BottomSheet>
-          </>
-        }
-        isExpanded={expanded}
-        onPress={() => {
-          setExpanded(!expanded);
+    <ScrollView contentInsetAdjustmentBehavior="automatic">
+      {/* {isLoading && <ActivityIndicator size={'large'} />} */}
+      <Formik
+        initialValues={{
+          name: '',
+          email: '',
+          // password: '',
+          country: '',
+          address: '',
+          address2: '',
+          city: '',
+          pincode: '',
+          state: '',
+          // address: YahooAddress?.label || '',
+          // address2: '',
+          // city: YahooAddress?.city || '',
+          // pincode: YahooAddress?.postalCode || '',
+          // state: YahooAddress?.state || '',
+
+          phonenumber: '',
+        }}
+        // enableReinitialize={true}
+        validationSchema={Yup.object().shape({
+          name: Yup.string()
+            .matches(nameRegExp, '*no special character')
+            .min(2, '*at least 2 characters')
+            .concat(requiredSchema),
+          address: Yup.string().concat(requiredSchema),
+          address2: Yup.string().notRequired('*address is optional'),
+          city: Yup.string().concat(requiredSchema),
+          pincode: Yup.string()
+            .matches(pincodeRegExp, '*no special character')
+            .min(6, '*at least 6 characters')
+            .max(9, '*too long')
+            .concat(requiredSchema),
+          state: Yup.string().concat(requiredSchema),
+          email: Yup.string().email('Invalid email').concat(requiredSchema),
+          phonenumber: Yup.string()
+            .phone(
+              country?.cca2 === undefined ? 'IN' : country?.cca2,
+              country?.cca2 === undefined
+                ? '*is invalid'
+                : `*is invalid for ${country?.cca2}`,
+            )
+            .concat(requiredSchema),
+          // password: Yup.string().min(6, 'Password must be at least 6 characters'.concat(requiredSchema),
+          country: Yup.string().concat(requiredSchema),
+        })}
+        onSubmit={values => {
+          // Handle form submission here
+          console.log('Form data submitted:', values);
+          setallfieldValues({
+            address: values?.address,
+            address2: values?.address2,
+            city: values?.city,
+            email: values?.email,
+            name: values?.name,
+            phonenumber: `${country?.callingCode + values?.phonenumber}`,
+            pincode: values?.pincode,
+            state: values?.state,
+          });
+
+          console.log({allfieldValues});
         }}>
-        <Input
-          placeholder="Search by name"
-          // leftIcon={{ type: 'font-awesome', name: 'chevron-left' }}
-          errorStyle={{color: 'red'}}
-          errorMessage={
-            searchHospitalName?.length !== 0 ? '' : 'Enter a valid Name!'
-          }
-          onChangeText={value => {
-            console.log(value.length);
-            setsearchHospitalName(value);
-          }}
-        />
-        {isLoading && <ActivityIndicator size="large" />}
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+        }) => (
+          <>
+            <View
+              style={{
+                width: windowWidth - 8,
+                marginHorizontal: 4,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={{
+                  alignItems: 'flex-start',
+                  width: windowWidth - 8,
+                  justifyContent: 'flex-start',
+                  padding: 4,
+                  marginTop: 6,
+                }}>
+                <Text
+                  style={{
+                    color: 'rgba(0,0,0,0.6)',
+                  }}>
+                  Account information
+                </Text>
+              </View>
+              <View
+                style={{
+                  width: windowWidth - 8,
+                  marginVertical: 6,
+                  borderColor: 'grey',
+                  borderRadius: 8,
+                  borderWidth: 1,
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                  }}>
+                  <TextInput
+                    placeholder="Full Name"
+                    onChangeText={handleChange('name')}
+                    onBlur={handleBlur('name')}
+                    value={values.name}
+                    placeholderTextColor={colors.light_textColor}
+                    cursorColor={'#000'}
+                    style={{
+                      color: colors.light_textColor,
 
-        {hospitalData?.map((item, index) => (
-          <ListItem
-            key={index.toString()}
-            onPress={() => console.log('Hospital details', item)}
-            bottomDivider>
-            <MaterialCommunityIcons
-              name="hospital-marker"
-              size={25}
-              color="red"
-            />
-            <ListItem.Content>
-              <ListItem.Title>{item?.name}</ListItem.Title>
+                      width: '100%',
+                      paddingStart: 14,
+                    }}
+                  />
+                  {touched.name && errors.name && (
+                    <Text
+                      style={{
+                        color: 'red',
+                        textAlign: 'center',
+                        position: 'absolute',
+                        bottom: 15,
+                        right: 0,
+                      }}>
+                      {errors.name}
+                    </Text>
+                  )}
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    borderColor: 'grey',
 
-              <ListItem.Subtitle>
-                Address: {item?.['addr:full']}
-              </ListItem.Subtitle>
-              <ListItem.Subtitle>
-                Postcode: {item?.['addr:postcode']}
-              </ListItem.Subtitle>
-              <ListItem.Subtitle>
-                State: {item?.['addr:state']}
-              </ListItem.Subtitle>
-              <ListItem.Subtitle>
-                District: {item?.['addr:district']}
-              </ListItem.Subtitle>
-              <ListItem.Subtitle>Source: {item?.source}</ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.Chevron />
-          </ListItem>
-        ))}
-      </ListItem.Accordion>
+                    borderTopWidth: 1,
+                  }}>
+                  <TextInput
+                    placeholder="Email"
+                    onChangeText={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                    value={values.email}
+                    placeholderTextColor={colors.light_textColor}
+                    keyboardType="email-address"
+                    cursorColor={'#000'}
+                    style={{
+                      color: colors.light_textColor,
+
+                      width: '100%',
+                      paddingStart: 14,
+                    }}
+                  />
+                  {touched.email && errors.email && (
+                    <Text
+                      style={{
+                        color: 'red',
+                        textAlign: 'center',
+                        position: 'absolute',
+                        bottom: 15,
+                        right: 0,
+                      }}>
+                      {errors.email}
+                    </Text>
+                  )}
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    borderColor: 'grey',
+
+                    borderTopWidth: 1,
+                  }}>
+                  <TextInput
+                    placeholder="Address line 1"
+                    onChangeText={handleChange('address')}
+                    onBlur={handleBlur('address')}
+                    value={values.address}
+                    placeholderTextColor={colors.light_textColor}
+                    cursorColor={'#000'}
+                    style={{
+                      color: colors.light_textColor,
+                      width: '100%',
+                      paddingStart: 14,
+                    }}
+                  />
+                  {touched.address && errors.address && (
+                    <Text
+                      style={{
+                        color: 'red',
+                        textAlign: 'center',
+                        position: 'absolute',
+                        bottom: 15,
+                        right: 0,
+                      }}>
+                      {errors.address}
+                    </Text>
+                  )}
+                </View>
+                <TextInput
+                  placeholder="Address line 2"
+                  onChangeText={handleChange('address2')}
+                  onBlur={handleBlur('address2')}
+                  value={values.address2}
+                  placeholderTextColor={colors.light_textColor}
+                  cursorColor={'#000'}
+                  style={{
+                    color: colors.light_textColor,
+                    borderColor: 'grey',
+
+                    borderTopWidth: 1,
+                    width: '100%',
+                    paddingStart: 14,
+                  }}
+                />
+                {touched.address2 && errors.address2 && (
+                  <Text
+                    style={{
+                      color: 'red',
+                      position: 'absolute',
+                      bottom: 15,
+                      right: 0,
+                    }}>
+                    {errors.address2}
+                  </Text>
+                )}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    borderTopWidth: 1,
+                    borderColor: 'grey',
+                  }}>
+                  <View
+                    style={{
+                      borderRightWidth: 1,
+                      width: '50%',
+                      borderColor: 'grey',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <TextInput
+                      placeholder="City"
+                      onChangeText={handleChange('city')}
+                      onBlur={handleBlur('city')}
+                      value={values.city}
+                      placeholderTextColor={colors.light_textColor}
+                      cursorColor={'#000'}
+                      style={{
+                        color: colors.light_textColor,
+                        paddingStart: 14,
+                        width: '100%',
+                      }}
+                    />
+                    {touched.city && errors.city && (
+                      <Text
+                        style={{
+                          color: 'red',
+                          textAlign: 'center',
+                          position: 'absolute',
+                          bottom: 15,
+                          right: 0,
+                        }}>
+                        {errors.city}
+                      </Text>
+                    )}
+                  </View>
+                  <View
+                    style={{
+                      width: '50%',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <TextInput
+                      placeholder="Pin Code"
+                      onChangeText={handleChange('pincode')}
+                      placeholderTextColor={colors.light_textColor}
+                      maxLength={9}
+                      keyboardType="number-pad"
+                      onBlur={handleBlur('pincode')}
+                      value={values.pincode}
+                      cursorColor={'#000'}
+                      style={{
+                        color: colors.light_textColor,
+                        paddingStart: 14,
+                        width: '100%',
+                      }}
+                    />
+                    {touched.pincode && errors.pincode && (
+                      <Text
+                        style={{
+                          color: 'red',
+                          textAlign: 'center',
+                          position: 'absolute',
+                          bottom: 15,
+                          right: 0,
+                        }}>
+                        {errors.pincode}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: '100%',
+                    height: 60,
+                    borderColor: 'grey',
+                    borderTopWidth: 1,
+                    alignItems: 'center',
+                    paddingVertical: 2,
+                    // justifyContent:'flex-start'
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'column',
+                      width: '60%',
+                      height: 60,
+                      borderColor: 'grey',
+                      borderRightWidth: 1,
+                    }}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text
+                        style={{
+                          textAlign: 'left',
+                          color: 'rgba(0,0,0,0.6)',
+                          paddingLeft: 10,
+                          width: '100%',
+                        }}>
+                        Country or region
+                      </Text>
+                      {touched.country && errors.country && (
+                        <Text
+                          style={{
+                            color: 'red',
+                            position: 'absolute',
+                            bottom: 0,
+                            right: 0,
+                          }}>
+                          {errors.country}
+                        </Text>
+                      )}
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        width: '100%',
+                        alignItems: 'center',
+                      }}>
+                      <View style={{width: '90%'}}>
+                        <CountryPicker
+                          containerButtonStyle={{
+                            // width: '92%',
+                            paddingLeft: 10,
+                          }}
+                          // placeholder='Select Country
+                          visible={isvisible}
+                          withCloseButton={true}
+                          // theme={null}
+                          countryCode={country?.cca2}
+                          withCallingCode
+                          withFlag
+                          withCountryNameButton
+                          withFilter={true}
+                          withAlphaFilter={true}
+                          onClose={setIsvisible(false)}
+                          onSelect={value => {
+                            // console.log({value});
+                            setCountry({
+                              cca2: value?.cca2,
+                              callingCode: value?.callingCode[0],
+                              countryName: value?.name,
+                            });
+                            setIsvisible(false);
+                            handleChange('country')(value?.name);
+                          }}
+                        />
+                      </View>
+                      <TouchableOpacity
+                        style={{
+                          width: '10%',
+                        }}
+                        onPress={() => {
+                          isvisible === false
+                            ? setIsvisible(true)
+                            : setIsvisible(false);
+                        }}>
+                        <MaterialCommunityIcons
+                          name={isvisible === true ? 'menu-up' : 'menu-down'}
+                          size={23}
+                          style={{
+                            // width: '10%',
+                            color: '#000',
+                          }}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      width: '40%',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <TextInput
+                      placeholder="State"
+                      onChangeText={handleChange('state')}
+                      onBlur={handleBlur('state')}
+                      placeholderTextColor={colors.light_textColor}
+                      value={values.state}
+                      cursorColor={'#000'}
+                      style={{
+                        color: colors.light_textColor,
+                        paddingStart: 14,
+                        width: '100%',
+                      }}
+                    />
+                    {touched.state && errors.state && (
+                      <Text
+                        style={{
+                          color: 'red',
+                          position: 'absolute',
+                          bottom: 15,
+                          right: 0,
+                        }}>
+                        {errors.state}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                <View
+                  style={{
+                    borderColor: 'grey',
+
+                    borderTopWidth: 1,
+                    flexDirection: 'row',
+                    width: '100%',
+                    height: 50,
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                  }}>
+                  {country?.callingCode?.length !== undefined ? (
+                    <View
+                      style={{
+                        borderRightWidth: 1,
+                        borderColor: 'grey',
+                        height: '100%',
+                        width: '12%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        // paddingHorizontal: 2,
+                      }}>
+                      <Text
+                        style={{
+                          color: colors.light_textColor,
+                          textAlign: 'center',
+                        }}>
+                        +{country?.callingCode}
+                      </Text>
+                    </View>
+                  ) : null}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      width: '88%',
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                      // height: 50,
+                    }}>
+                    <TextInput
+                      placeholder="Phone number"
+                      onChangeText={handleChange('phonenumber')}
+                      placeholderTextColor={colors.light_textColor}
+                      onBlur={handleBlur('phonenumber')}
+                      value={values.phonenumber}
+                      keyboardType="numeric"
+                      cursorColor={'#000'}
+                      maxLength={15}
+                      style={{
+                        width: '100%',
+                        // alignItems: 'center',
+                        // height: 50,
+                        paddingStart: 8,
+                        textAlign: 'left',
+                      }}
+                    />
+
+                    {touched.phonenumber && errors.phonenumber && (
+                      <Text
+                        style={{
+                          color: 'red',
+                          textAlign: 'right',
+                          position: 'absolute',
+                          bottom: 15,
+                          right: 0,
+                        }}>
+                        {errors.phonenumber}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: 'red',
+                  padding: 14,
+                  borderRadius: 8,
+                  width: windowWidth / 2,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margintop: 30,
+                }}
+                onPress={() => {
+                  handleSubmit();
+                }}>
+                <Text style={{color: '#fff', textAlign: 'center'}}>Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+      </Formik>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    margin: 10,
-    borderRadius: 8,
-    width: 100,
-  },
-});
