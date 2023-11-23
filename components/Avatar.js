@@ -11,12 +11,11 @@ import {
   View,
 } from 'react-native';
 import ImagePicker, {ImageOrVideo} from 'react-native-image-crop-picker';
-import {CameraIcon, ImageIcon} from './icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Dimensions} from 'react-native';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import {BottomSheetModal, useBottomSheetModal} from '@gorhom/bottom-sheet';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -31,6 +30,7 @@ export const Avatar = props => {
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
+  const {dismiss, dismissAll} = useBottomSheetModal();
 
   const [uri, setUri] = useState(props.source?.uri || undefined);
   const chooseImage = async () => {
@@ -38,11 +38,16 @@ export const Avatar = props => {
       width: 300,
       height: 400,
       cropping: true,
+      cropperCircleOverlay:true,
+      showCropGuidelines :false,
+      useFrontCamera:true,
+      // freeStyleCropEnabled:true,
     })
       .then(image => {
         setUri(image.path);
         props.onChange?.(image);
       })
+      .finally(dismiss)
       .catch(err => console.log({err}));
   };
 
@@ -51,11 +56,16 @@ export const Avatar = props => {
       width: 300,
       height: 400,
       cropping: true,
+      cropperCircleOverlay:true,
+      showCropGuidelines :false,
+      // useFrontCamera:true,
+      // freeStyleCropEnabled:true,
     })
       .then(image => {
         setUri(image.path);
         props.onChange?.(image);
       })
+      .finally(dismiss)
       .catch(err => console.log({err}));
   };
 
@@ -66,10 +76,12 @@ export const Avatar = props => {
         style={{
           borderRadius: 155,
           backgroundColor: 'rgba(0,0,0,0.4)',
-          height: 155,
-          width: 155,
+          height: 157,
+          width: 157,
           // padding: 10,
           flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}>
         <Image
           style={styles.avatar}
@@ -85,8 +97,6 @@ export const Avatar = props => {
             width: 35,
             backgroundColor: 'rgba(255,255,255,1)',
             borderRadius: 35,
-            borderWidth: 1,
-            borderColor: '#fff',
           }}>
           <MaterialCommunityIcons
             name="camera"

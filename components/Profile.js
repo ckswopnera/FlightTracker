@@ -5,7 +5,7 @@ import {Avatar} from './Avatar';
 
 const Profile = () => {
   const onAvatarChange = image => {
-    console.log(image);
+    console.log({image});
     // upload image to server here
   };
   return (
