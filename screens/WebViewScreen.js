@@ -2,17 +2,20 @@ import React, {useEffect, useState} from 'react';
 import {View, Text} from 'react-native';
 import {WebView} from 'react-native-webview';
 import Geolocation from '@react-native-community/geolocation';
+import Animated_loader from './Animated_Component/Loader';
 export default function WebViewScreen() {
   const [location, setLocation] = useState();
-
+  const [isloading, setIsloading] = useState(false);
   useEffect(() => {
     travel_check();
   }, []);
   const travel_check = async () => {
+    setIsloading(true);
     await Geolocation.getCurrentPosition(
       info => {
         const {latitude, longitude} = info.coords;
         setLocation(info.coords);
+        setIsloading(false);
       },
       error => {
         // Handle geolocation errors
@@ -23,6 +26,7 @@ export default function WebViewScreen() {
   };
   return (
     <>
+      {isloading && <Animated_loader />}
       {location !== undefined && (
         <WebView
           // source={{uri: 'https://vividmaps.com/'}}
