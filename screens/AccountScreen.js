@@ -1,5 +1,4 @@
 import React, {Component, useEffect, useState} from 'react';
-
 import {
   ScrollView,
   Text,
@@ -31,7 +30,7 @@ import Animated_loader from './Animated_Component/Loader';
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 export default function AccountScreen() {
-  const [Address, setAddress] = useState();
+  const [address, setAddress] = useState();
   const [YahooAddress, setYahooAddress] = useState();
 
   const [allfieldValues, setallfieldValues] = useState();

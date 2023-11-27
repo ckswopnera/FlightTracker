@@ -5,6 +5,7 @@ import SearchScreen from './SearchScreen';
 import EmergencyScreen from './EmergencyScreen';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
+import WebViewScreen from './WebViewScreen';
 
 const Stack = createStackNavigator();
 export default function StackScreen() {
@@ -16,6 +17,11 @@ export default function StackScreen() {
         name="SearchScreen"
         component={SearchScreen}
         options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Place Search"
+        component={WebViewScreen}
+        // options={{headerShown: false}}
       />
       <Stack.Screen
         name="Emergency"

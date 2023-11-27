@@ -115,7 +115,7 @@ export default function SearchScreen() {
               // tabBarScrollEnabled:false,
               inactiveTintColor: '#ffffff',
               activeTintColor: '#ffffff',
-              tabBarStyle: {backgroundColor: '#f3f3f3', height: 90},
+              tabBarStyle: {backgroundColor: '#f3f3f3', height: 76},
               tabBarIconStyle: {
                 height: 55,
                 width: 55,

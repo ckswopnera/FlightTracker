@@ -100,6 +100,7 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            crunchPngs false
         }
     }
 }
@@ -119,6 +120,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    implementation project(':rn-fetch-blob')
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
