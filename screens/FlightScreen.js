@@ -213,7 +213,7 @@ export default function FlightScreen() {
     );
   };
   useEffect(() => {
-    // place_details();
+    place_details();
     // tourist_check();
     // place_image();
   }, []);
