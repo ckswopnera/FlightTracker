@@ -9,6 +9,9 @@ import {
   Image,
   Animated,
   Alert,
+  ImageBackground,
+  ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -19,6 +22,8 @@ import {useNavigation} from '@react-navigation/native';
 import {GEOAPIFY_API_KEY, YAHOO_API_KEY, PEXELS_IMAGE_API_KEY} from '@env';
 import Geolocation from '@react-native-community/geolocation';
 import RNFetchBlob from 'rn-fetch-blob';
+import Animated_loader from './Animated_Component/Loader';
+import FastImage from 'react-native-fast-image'
 
 const imageLinks = [
   {src: require('../assets/image/maps/world-map.png'), title: 'world-map'},
@@ -68,7 +73,8 @@ export default function FlightScreen() {
   const [location, setlocation] = useState();
   const [imagesrc, setImagesrc] = useState();
   const [place_name, setPlace_name] = useState();
-  const [photo_pressed, setPhoto_pressed] = useState(false);
+  const [photo_pressed_id, setphoto_pressed_id] = useState();
+  const [loading, setLoading] = useState(true);
 
   const place_image = async () => {
     const search_data = 'Frances Johnson’s Mausoleum';
@@ -89,6 +95,7 @@ export default function FlightScreen() {
       .catch(err => console.log(err));
   };
   const place_details = async () => {
+    setLoading(true);
     // Define the categories of tourist places
     const category = 'tourism.sights';
 
@@ -96,7 +103,7 @@ export default function FlightScreen() {
     const filter = 'rect:7.735282,48.586797,7.756289,48.574457';
 
     // Define the limit of results
-    const limit = 5;
+    const limit = 10;
 
     await Geolocation.getCurrentPosition(
       info => {
@@ -172,6 +179,7 @@ export default function FlightScreen() {
       }
       // console.log('All results:', allResults);
       setImagesrc(allResults);
+      setLoading(false);
       // Alternatively, you can use Promise.all for concurrent requests
       // const resultsArray = await Promise.all(queries.map(query => searchPexels(query)));
       // resultsArray.forEach((results, index) => console.log(`Results for ${queries[index]}:`, results));
@@ -219,6 +227,8 @@ export default function FlightScreen() {
   }, []);
 
   return (
+    <>
+    {loading && <Animated_loader />}
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{
@@ -364,12 +374,20 @@ export default function FlightScreen() {
                   // borderColor: '#000',
                   borderRadius: 8,
                 }}>
-                <Image
+                <ImageBackground
                   source={item?.src}
-                  style={{height: 100, width: 100, borderRadius: 8}}
+                  imageStyle={{borderRadius: 8}}
+                  style={{height: 100, width: 100,borderRadius: 8,}}
                   resizeMode="contain"
-                />
-                <Text style={{color: '#000', textAlign: 'center'}}>
+                >
+                {loading && (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="white" />
+                    <Text style={styles.loadingText}>Loading...</Text>
+                  </View>
+                )}
+                </ImageBackground>
+                <Text style={{color: '#000', textAlign: 'center',fontSize:10,fontWeight:'bold',}}>
                   {item?.title}
                 </Text>
               </TouchableOpacity>
@@ -406,6 +424,7 @@ export default function FlightScreen() {
           }}>
           Discover your next adventure
         </Text>
+
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -419,20 +438,19 @@ export default function FlightScreen() {
             justifyContent: 'center',
           }}>
           {imagesrc?.map((i, j) => {
-            console.log({i});
+            // console.log({i});
+
             return i?.image?.map((k, m) => {
               // console.log({k});
               return (
                 <TouchableOpacity
-                  onPress={() =>
-                    photo_pressed === false
-                      ? setPhoto_pressed(true)
-                      : setPhoto_pressed(false)
-                  }
+                  onPress={() => {
+                    setphoto_pressed_id(j);
+                  }}
                   key={m.toString()}
                   style={{
                     flexDirection: 'column',
-                    height: photo_pressed===true?200:160,
+                    height: 120,
                     width: 100,
                     margin: 4,
                     borderRadius: 8,
@@ -442,7 +460,7 @@ export default function FlightScreen() {
                     // position: 'absolute',
                     // bottom: 0,
                   }}>
-                  <Image
+                  {/* <ImageBackground
                     source={{uri: k}}
                     style={{
                       height: 100,
@@ -450,30 +468,90 @@ export default function FlightScreen() {
                       borderRadius: 8,
                     }}
                     resizeMode="cover"
-                  />
-                  <Text style={{color: '#000', textAlign: 'center',}}>
+                    imageStyle={{borderRadius: 8}}>
+                    {loading && (
+                      <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="white" />
+                        <Text style={styles.loadingText}>Loading...</Text>
+                      </View>
+                    )}
+                    {j === photo_pressed_id ? (
+                      <View
+                        style={{
+                          // zIndex: 9999,
+                          height: 35,
+                          width: 100,
+                          backgroundColor: 'red',
+                          position: 'absolute',
+                          bottom: 0,
+                          // right: 0,
+                          // borderBottomEndRadius: 8,
+                          borderBottomRightRadius: 8,
+                          borderBottomLeftRadius: 8,
+                          // padding: 4,
+                          // marginTop: 6,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 8,
+                            textAlign: 'center',
+                          }}>
+                          {i?.query?.address_line2}
+                        </Text>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
+                  </ImageBackground> */}
+<FastImage
+        style={{ width: 100, height: 100,borderRadius: 8, }}
+        source={{
+            uri: k,
+            // headers: { Authorization: 'someAuthToken' },
+            priority: FastImage.priority.normal,
+        }}
+        resizeMode={FastImage.resizeMode.cover}
+    >
+      {loading && (
+                      <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="white" />
+                        <Text style={styles.loadingText}>Loading...</Text>
+                      </View>
+                    )}
+{j === photo_pressed_id ? (
+                      <View
+                        style={{
+                          // zIndex: 9999,
+                          height: 35,
+                          width: 100,
+                          backgroundColor: 'red',
+                          position: 'absolute',
+                          bottom: 0,
+                          // right: 0,
+                          // borderBottomEndRadius: 8,
+                          borderBottomRightRadius: 8,
+                          borderBottomLeftRadius: 8,
+                          // padding: 4,
+                          // marginTop: 6,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#fff',
+                            fontSize: 8,
+                            textAlign: 'center',
+                          }}>
+                          {i?.query?.address_line2}
+                        </Text>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
+
+    </FastImage>
+                  <Text style={{color: '#000', textAlign: 'center',fontSize:10,fontWeight:'bold',}}>
                     {i?.query?.name}
                   </Text>
-                  {photo_pressed && (
-                    <View
-                      // key={m.toString()}
-                      style={{
-                        // zIndex: 9999,
-                        height: 40,
-                        width: 100,
-                        backgroundColor: 'red',
-                        position: 'absolute',
-                        bottom: 0,
-                        // right: 0,
-                        borderRadius: 10,
-                        padding: 4,
-                        marginTop: 6,
-                      }}>
-                      <Text style={{color: '#fff', fontSize: 8}}>
-                        {i?.query?.address_line2}
-                      </Text>
-                    </View>
-                  )}
                 </TouchableOpacity>
               );
             });
@@ -484,5 +562,27 @@ export default function FlightScreen() {
         </Text>
       </View>
     </ScrollView>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 8,
+  },
+  loadingText: {
+    color: '#fff',
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  text: {
+    color: '#000',
+    fontSize: 8,
+    textAlign: 'center',
+    // margin: 8,
+  },
+});
