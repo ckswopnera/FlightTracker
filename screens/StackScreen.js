@@ -6,6 +6,7 @@ import EmergencyScreen from './EmergencyScreen';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import WebViewScreen from './WebViewScreen';
+import BottomSheetVIew from '../components/BottomSheetVIew';
 
 const Stack = createStackNavigator();
 export default function StackScreen() {
@@ -22,6 +23,11 @@ export default function StackScreen() {
         name="Place Search"
         component={WebViewScreen}
         // options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="BottomSheetVIew"
+        component={BottomSheetVIew}
+        options={{headerShown: false}}
       />
       <Stack.Screen
         name="Emergency"

@@ -29,7 +29,7 @@ export default function WebViewScreen() {
       {isloading && <Animated_loader />}
       {location !== undefined && (
         <WebView
-          // source={{uri: 'https://vividmaps.com/'}}
+          // source={{uri: 'https://vividmaps.com/world-airports/'}}
           source={{
             uri: `https://opentripmap.com/en/#11/${location?.latitude}/${location?.longitude}`,
           }}
