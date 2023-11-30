@@ -34,6 +34,7 @@ import {WebView} from 'react-native-webview';
 import {ScrollView as Scroll} from 'react-native-gesture-handler';
 import WebViewScreen from './WebViewScreen';
 import {Table, Row, Rows} from 'react-native-reanimated-table';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 const imageLinks = [
   {
@@ -273,6 +274,9 @@ export default function FlightScreen() {
   const [loading, setLoading] = useState(true);
   const {dismiss, dismissAll} = useBottomSheetModal();
   const [imageClick, setImageClick] = useState();
+
+  const [playing, setPlaying] = useState(false);
+
   const tableHead = ['TYPE', 'ALTITUDE, M', 'NAME', 'COUNTRY', 'AIRPORT CODE'];
   const [topTenAirports, settopTenAirports] =
     useState(`Guangzhou, China (CAN) – 43,767,558
@@ -297,9 +301,17 @@ export default function FlightScreen() {
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
-  const pressed_value = val => {
-    console.log('value - ', val);
-  };
+
+  const onStateChange = useCallback(state => {
+    if (state === 'ended') {
+      setPlaying(false);
+      Alert.alert('video has finished playing!');
+    }
+  }, []);
+
+  const togglePlaying = useCallback(() => {
+    setPlaying(prev => !prev);
+  }, []);
   const place_image = async () => {
     const search_data = 'Frances Johnson’s Mausoleum';
 
@@ -446,8 +458,6 @@ export default function FlightScreen() {
   };
 
   useEffect(() => {
-    // const value = imageLinks.find(e => e.id === 2);
-    // console.log({value});
     // place_details();
     // tourist_check();
     // place_image();
@@ -650,7 +660,7 @@ export default function FlightScreen() {
               keyboardDismissMode="on-drag"
               keyboardShouldPersistTaps="never"
               horizontal={false}
-              showsVerticalScrollIndicator={true}
+              showsVerticalScrollIndicator={false}
               // style={{ flex: 1}}
               // contentContainerStyle={{flex: 1}}
             >
@@ -768,8 +778,25 @@ export default function FlightScreen() {
                   </Table>
                 </View>
               ) : null}
-              
+               <View style={{paddingVertical: 10, marginHorizontal: 8}}>
+                <YoutubePlayer
+                  height={300}
+                  width={'100%'}
+                  // play={playing}
+
+                  // onChangeState={onStateChange}
+
+                  // videoId={"b6PimS7dtW8"}
+                  playList={['b6PimS7dtW8', '4jW9wk_g9QY','31p9_4fu9mw','Zco3XlYt6Ko']}
+                  // playList={'PLexmhDHOGHQTUDytEOMlYIrKYHzSzngBO'}
+                  playListStartIndex={0}
+                  webViewProps={{
+                    androidLayerType: 'hardware',
+                }}
+                />
+              </View>
             </BottomSheetScrollView>
+           
           </BottomSheetModal>
         </View>
         <View
@@ -897,6 +924,9 @@ export default function FlightScreen() {
           <Text style={{color: '#000', paddingVertical: 10}}>
             See the world on your budget
           </Text>
+        </View>
+        <View>
+          {/* <Button title={playing ? "pause" : "play"} onPress={togglePlaying} /> */}
         </View>
       </ScrollView>
     </>
