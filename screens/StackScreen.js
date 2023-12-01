@@ -7,6 +7,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import WebViewScreen from './WebViewScreen';
 import BottomSheetVIew from '../components/BottomSheetVIew';
+import TourismScreen from './TourismScreen';
 
 const Stack = createStackNavigator();
 export default function StackScreen() {
@@ -22,6 +23,11 @@ export default function StackScreen() {
       <Stack.Screen
         name="Place Search"
         component={WebViewScreen}
+        // options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Tourism"
+        component={TourismScreen}
         // options={{headerShown: false}}
       />
       <Stack.Screen

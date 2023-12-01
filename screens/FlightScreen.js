@@ -30,11 +30,8 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import BottomSheetVIew from '../components/BottomSheetVIew';
-import {WebView} from 'react-native-webview';
-import {ScrollView as Scroll} from 'react-native-gesture-handler';
-import WebViewScreen from './WebViewScreen';
 import {Table, Row, Rows} from 'react-native-reanimated-table';
-import YoutubePlayer from 'react-native-youtube-iframe';
+import YoutubevideoPage from '../components/YoutubevideoPage';
 
 const imageLinks = [
   {
@@ -269,13 +266,13 @@ export default function FlightScreen() {
   const navigation = useNavigation();
   const [location, setlocation] = useState();
   const [imagesrc, setImagesrc] = useState();
-  const [place_name, setPlace_name] = useState();
+  const [place_coordinate, setPlace_coordinate] = useState();
+  const [placeDetails, setPlaceDetails] = useState();
+  const [myLocation, setmyLocation] = useState();
   const [photo_pressed_id, setphoto_pressed_id] = useState();
   const [loading, setLoading] = useState(true);
   const {dismiss, dismissAll} = useBottomSheetModal();
   const [imageClick, setImageClick] = useState();
-
-  const [playing, setPlaying] = useState(false);
 
   const tableHead = ['TYPE', 'ALTITUDE, M', 'NAME', 'COUNTRY', 'AIRPORT CODE'];
   const [topTenAirports, settopTenAirports] =
@@ -302,16 +299,6 @@ export default function FlightScreen() {
     bottomSheetModalRef.current?.present();
   }, []);
 
-  const onStateChange = useCallback(state => {
-    if (state === 'ended') {
-      setPlaying(false);
-      Alert.alert('video has finished playing!');
-    }
-  }, []);
-
-  const togglePlaying = useCallback(() => {
-    setPlaying(prev => !prev);
-  }, []);
   const place_image = async () => {
     const search_data = 'Frances Johnson’s Mausoleum';
 
@@ -333,11 +320,9 @@ export default function FlightScreen() {
   const place_details = async () => {
     setLoading(true);
     // Define the categories of tourist places
-    const category = 'tourism.sights';
+    const category = 'tourism.attraction,tourism,tourism.sights';
 
-    // Define the rectangular area by the coordinates of the south-west and north-east corners
-    const filter = 'rect:7.735282,48.586797,7.756289,48.574457';
-
+    const radius = 10000;
     // Define the limit of results
     const limit = 5;
 
@@ -346,18 +331,23 @@ export default function FlightScreen() {
         const {latitude, longitude} = info.coords;
         // Make a request to the Nominatim API for reverse geocoding
         fetch(
-          `https://api.geoapify.com/v2/places?categories=${category}&bias=proximity:${longitude},${latitude}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`,
+          `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${longitude},${latitude},${radius}&bias=proximity:${longitude},${latitude}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`,
         )
           .then(response => response.json())
           .then(places => {
+            // console.log('info.coords',info.coords)
             // console.log('Places', places?.features);
-            const place_name = places?.features?.map((i, l) => i?.properties);
-            const place_address = places?.features?.map(
-              (i, l) => i?.properties?.address_line2,
+            const place_details = places?.features?.map(
+              (i, l) => i?.properties,
             );
-            // console.log({place_address});
-            // setPlace_name(place_name);
-            performMultipleSearches(place_name);
+            // const place_coordinates = places?.features?.map(
+            //   (i, l) => i?.geometry?.coordinates,
+            // );
+            // console.log({place_coordinates});
+            // setPlace_coordinate(place_coordinates);
+            setPlaceDetails(place_details);
+            setmyLocation(info.coords);
+            performMultipleSearches(place_details);
           })
 
           .catch(error => {
@@ -458,7 +448,7 @@ export default function FlightScreen() {
   };
 
   useEffect(() => {
-    // place_details();
+    place_details();
     // tourist_check();
     // place_image();
     var final = topTenAirports
@@ -535,8 +525,8 @@ export default function FlightScreen() {
               borderRadius: 8,
               padding: 10,
             }}
-            resizeMethod="auto"
-            resizeMode="contain"
+            resizeMethod="scale"
+            resizeMode="cover"
           />
           <Text style={{color: '#000'}}>See the world on your budget</Text>
           <TouchableOpacity
@@ -625,13 +615,14 @@ export default function FlightScreen() {
                     source={item?.src}
                     imageStyle={{borderRadius: 8}}
                     style={{height: 100, width: 100, borderRadius: 8}}
-                    resizeMode="cover">
-                    {loading && (
+                    resizeMode="cover"
+                    resizeMethod="scale">
+                    {/* {loading && (
                       <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color="white" />
                         <Text style={styles.loadingText}>Loading...</Text>
                       </View>
-                    )}
+                    )} */}
                   </ImageBackground>
                   <Text
                     style={{
@@ -778,25 +769,9 @@ export default function FlightScreen() {
                   </Table>
                 </View>
               ) : null}
-               <View style={{paddingVertical: 10, marginHorizontal: 8}}>
-                <YoutubePlayer
-                  height={300}
-                  width={'100%'}
-                  // play={playing}
 
-                  // onChangeState={onStateChange}
-
-                  // videoId={"b6PimS7dtW8"}
-                  playList={['b6PimS7dtW8', '4jW9wk_g9QY','31p9_4fu9mw','Zco3XlYt6Ko']}
-                  // playList={'PLexmhDHOGHQTUDytEOMlYIrKYHzSzngBO'}
-                  playListStartIndex={0}
-                  webViewProps={{
-                    androidLayerType: 'hardware',
-                }}
-                />
-              </View>
+              <YoutubevideoPage />
             </BottomSheetScrollView>
-           
           </BottomSheetModal>
         </View>
         <View
@@ -921,13 +896,37 @@ export default function FlightScreen() {
               });
             })}
           </ScrollView>
-          <Text style={{color: '#000', paddingVertical: 10}}>
-            See the world on your budget
-          </Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('Tourism', {
+                myLocation: myLocation,
+                place_details: placeDetails,
+              })
+            }
+            style={{
+              borderRadius: 8,
+              width: windowWidth - 20,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 14,
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              marginTop: 20,
+            }}>
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 16,
+                textAlign: 'center',
+                fontWeight: '500',
+              }}>
+              Find nearest places
+            </Text>
+          </TouchableOpacity>
         </View>
-        <View>
-          {/* <Button title={playing ? "pause" : "play"} onPress={togglePlaying} /> */}
-        </View>
+        {/* <View>
+          <Button title={playing ? "pause" : "play"} onPress={togglePlaying} />
+        </View> */}
       </ScrollView>
     </>
   );
