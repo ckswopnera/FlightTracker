@@ -12,7 +12,7 @@ import Geolocation from '@react-native-community/geolocation';
 import {ListItem} from '@rneui/themed';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
+import {useNavigation} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {BottomSheet, Button, Divider, Input} from '@rneui/base';
@@ -28,6 +28,8 @@ const EmergencyScreen = () => {
   const [hospitalData, sethospitalData] = useState();
   const [policeData, setpoliceData] = useState();
   const [fireStationData, setfireStationData] = useState();
+  const [my_Location, setMy_Location] = useState(null);
+  const navigation = useNavigation();
 
   const [searchHospitalName, setsearchHospitalName] = useState();
   const [searchPoliceStationName, setsearchPoliceStationName] = useState();
@@ -89,7 +91,7 @@ const EmergencyScreen = () => {
   useEffect(() => {
     // Access the updated params and do something with it
     const VisibleDiameter = route.params?.isVisibleDiameter || false;
-    console.log({VisibleDiameter});
+    // console.log({VisibleDiameter});
     setIsVisibleDiameter(VisibleDiameter);
   }, [route]);
 
@@ -118,6 +120,7 @@ const EmergencyScreen = () => {
       info => {
         // console.log({info});
         const {latitude, longitude} = info.coords;
+        setMy_Location(info.coords);
         const overpassQuery = `
     [out:json];
     node(around:${radius_hospital},${latitude}, ${longitude})["amenity"="hospital"];
@@ -135,10 +138,15 @@ const EmergencyScreen = () => {
             // Handle the response data here
             // console.log(data);
             const hospital_dictrict_data = data.elements.map(
-              (item, index) => item.tags,
+              (item, index) => item,
+
+              // (item, index) => item.tags,
               // item.tags['addr:district'],
             );
-            // console.log({hospital_dictrict_data});
+            // const hospital_lat_lon_data = data.elements.map(
+            //   (item, index) => [item.lat,item.lon],
+            // );
+            // console.log({hospital_lat_lon_data});
             sethospitalData(hospital_dictrict_data);
           })
           .then(() => setisLoading(false))
@@ -184,7 +192,7 @@ const EmergencyScreen = () => {
             // Handle the response data here
             // console.log(data);
             const police_data = data.elements.map(
-              (item, index) => item.tags,
+              (item, index) => item,
               // item.tags['addr:district'],
             );
             // console.log({police_data});
@@ -234,7 +242,7 @@ const EmergencyScreen = () => {
             // Handle the response data here
             // console.log(data);
             const fire_station_data = data.elements.map(
-              (item, index) => item.tags,
+              (item, index) => item,
               // item.tags['addr:district'],
             );
             // console.log({fire_station_data});
@@ -456,7 +464,7 @@ const EmergencyScreen = () => {
                     key={i}
                     containerStyle={l.containerStyle}
                     onPress={() => {
-                      console.log({i});
+                      // console.log({i});
                       if (l.title === 'Cancel') {
                         setIsVisibleDiameter(false);
                       } else {
@@ -475,7 +483,10 @@ const EmergencyScreen = () => {
                     </ListItem.Content>
                     {l.id === selected_index_radius ? (
                       // <MaterialCommunityIcons name="check" size={20} />
-                      <Image source={require('../assets/icon/check_mark.png')} style={{height:20,width:20,resizeMode:'contain'}}/>
+                      <Image
+                        source={require('../assets/icon/check_mark.png')}
+                        style={{height: 20, width: 20, resizeMode: 'contain'}}
+                      />
                     ) : (
                       <></>
                     )}
@@ -495,7 +506,27 @@ const EmergencyScreen = () => {
           renderItem={({item, index}) => {
             // console.log({item});
             return (
-              <>
+              <TouchableOpacity
+                onPress={() => {
+                  // console.log({item});
+                  if (my_Location) {
+                    navigation.navigate('Tourism', {
+                      myLocation: my_Location,
+                      place_details: [
+                        {
+                          lat: item.lat,
+                          lon: item.lon,
+                          name: item.tags.name,
+                          address_line2:
+                            item?.tags?.amenity == 'fire_station'||item?.tags?.amenity == 'police'
+                              ? item?.tags?.['addr:housenumber'] +' '+
+                                item?.tags?.['addr:street']
+                              : item?.tags?.['addr:full'],
+                        },
+                      ],
+                    });
+                  }
+                }}>
                 {expandedHospital && (
                   <View
                     style={{
@@ -521,97 +552,100 @@ const EmergencyScreen = () => {
                           flexDirection: 'column',
                         }}>
                         <Text style={{color: '#000', fontWeight: 'bold'}}>
-                          {item?.name}
+                          {item?.tags?.name}
                         </Text>
-                        {item?.['addr:full']?.length !== undefined ? (
+                        {item?.tags?.['addr:full']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:full']}
+                            {item?.tags?.['addr:full']}
                           </Text>
                         ) : (
                           <></>
                         )}
 
                         <View style={{flexDirection: 'row'}}>
-                          {item?.['addr:housenumber']?.length !== undefined ? (
+                          {item?.tags?.['addr:housenumber']?.length !==
+                          undefined ? (
                             <Text style={{color: '#000', paddingRight: 5}}>
-                              {item?.['addr:housenumber']}
+                              {item?.tags?.['addr:housenumber']}
                             </Text>
                           ) : (
                             <></>
                           )}
-                          {item?.['addr:street']?.length !== undefined ? (
+                          {item?.tags?.['addr:street']?.length !== undefined ? (
                             <Text style={{color: '#000'}}>
-                              {item?.['addr:street']}
+                              {item?.tags?.['addr:street']}
                             </Text>
                           ) : (
                             <></>
                           )}
                         </View>
-                        {item?.['addr:city']?.length !== undefined ? (
+                        {item?.tags?.['addr:city']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:city']}
+                            {item?.tags?.['addr:city']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.['addr:district']?.length !== undefined ? (
+                        {item?.tags?.['addr:district']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:district']}
+                            {item?.tags?.['addr:district']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.['addr:state']?.length !== undefined ? (
+                        {item?.tags?.['addr:state']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:state']}
+                            {item?.tags?.['addr:state']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.['addr:postcode']?.length !== undefined ? (
+                        {item?.tags?.['addr:postcode']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:postcode']}
+                            {item?.tags?.['addr:postcode']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.phone?.length !== undefined ? (
-                          <Text style={{color: '#000'}}>{item?.phone}</Text>
-                        ) : (
-                          <></>
-                        )}
-                        {item?.['contact:phone']?.length !== undefined ? (
+                        {item?.tags?.phone?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['contact:phone']}
+                            {item?.tags?.phone}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.['operator:type']?.length !== undefined ? (
+                        {item?.tags?.['contact:phone']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            Operator type: {item?.['operator:type']}
+                            {item?.tags?.['contact:phone']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.['healthcare:speciality']?.length !==
+                        {item?.tags?.['operator:type']?.length !== undefined ? (
+                          <Text style={{color: '#000'}}>
+                            Operator type: {item?.tags?.['operator:type']}
+                          </Text>
+                        ) : (
+                          <></>
+                        )}
+                        {item?.tags?.['healthcare:speciality']?.length !==
                         undefined ? (
                           <Text style={{color: '#000'}}>
-                            Speciality: {item?.['healthcare:speciality']}
+                            Speciality: {item?.tags?.['healthcare:speciality']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.website?.length !== undefined ? (
+                        {item?.tags?.website?.length !== undefined ? (
                           <Text style={{color: '#6889FF', fontWeight: '600'}}>
-                            {item?.website}
+                            {item?.tags?.website}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.website?.length !== undefined ? (
+                        {item?.tags?.website?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            Source: {item?.source}
+                            Source: {item?.tags?.source}
                           </Text>
                         ) : (
                           <></>
@@ -645,54 +679,57 @@ const EmergencyScreen = () => {
                           flexDirection: 'column',
                         }}>
                         <Text style={{color: '#000', fontWeight: 'bold'}}>
-                          {item?.name}
+                          {item?.tags?.name}
                         </Text>
-                        {item?.['addr:full']?.length !== undefined ? (
+                        {item?.tags?.['addr:full']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:full']}
+                            {item?.tags?.['addr:full']}
                           </Text>
                         ) : (
                           <></>
                         )}
 
                         <View style={{flexDirection: 'row'}}>
-                          {item?.['addr:housenumber']?.length !== undefined ? (
+                          {item?.tags?.['addr:housenumber']?.length !==
+                          undefined ? (
                             <Text style={{color: '#000', paddingRight: 5}}>
-                              {item?.['addr:housenumber']}
+                              {item?.tags?.['addr:housenumber']}
                             </Text>
                           ) : (
                             <></>
                           )}
-                          {item?.['addr:street']?.length !== undefined ? (
+                          {item?.tags?.['addr:street']?.length !== undefined ? (
                             <Text style={{color: '#000'}}>
-                              {item?.['addr:street']}
+                              {item?.tags?.['addr:street']}
                             </Text>
                           ) : (
                             <></>
                           )}
                         </View>
-                        {item?.['addr:city']?.length !== undefined ? (
+                        {item?.tags?.['addr:city']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:city']}
+                            {item?.tags?.['addr:city']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.['addr:postcode']?.length !== undefined ? (
+                        {item?.tags?.['addr:postcode']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:postcode']}
+                            {item?.tags?.['addr:postcode']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.phone?.length !== undefined ? (
-                          <Text style={{color: '#000'}}>{item?.phone}</Text>
+                        {item?.tags?.phone?.length !== undefined ? (
+                          <Text style={{color: '#000'}}>
+                            {item?.tags?.phone}
+                          </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.website?.length !== undefined ? (
+                        {item?.tags?.website?.length !== undefined ? (
                           <Text style={{color: '#6889FF', fontWeight: '600'}}>
-                            {item?.website}
+                            {item?.tags?.website}
                           </Text>
                         ) : (
                           <></>
@@ -726,54 +763,57 @@ const EmergencyScreen = () => {
                           flexDirection: 'column',
                         }}>
                         <Text style={{color: '#000', fontWeight: 'bold'}}>
-                          {item?.name}
+                          {item?.tags?.name}
                         </Text>
-                        {item?.['addr:full']?.length !== undefined ? (
+                        {item?.tags?.['addr:full']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:full']}
+                            {item?.tags?.['addr:full']}
                           </Text>
                         ) : (
                           <></>
                         )}
 
                         <View style={{flexDirection: 'row'}}>
-                          {item?.['addr:housenumber']?.length !== undefined ? (
+                          {item?.tags?.['addr:housenumber']?.length !==
+                          undefined ? (
                             <Text style={{color: '#000', paddingRight: 5}}>
-                              {item?.['addr:housenumber']}
+                              {item?.tags?.['addr:housenumber']}
                             </Text>
                           ) : (
                             <></>
                           )}
-                          {item?.['addr:street']?.length !== undefined ? (
+                          {item?.tags?.['addr:street']?.length !== undefined ? (
                             <Text style={{color: '#000'}}>
-                              {item?.['addr:street']}
+                              {item?.tags?.['addr:street']}
                             </Text>
                           ) : (
                             <></>
                           )}
                         </View>
-                        {item?.['addr:city']?.length !== undefined ? (
+                        {item?.tags?.['addr:city']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:city']}
+                            {item?.tags?.['addr:city']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.['addr:postcode']?.length !== undefined ? (
+                        {item?.tags?.['addr:postcode']?.length !== undefined ? (
                           <Text style={{color: '#000'}}>
-                            {item?.['addr:postcode']}
+                            {item?.tags?.['addr:postcode']}
                           </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.phone?.length !== undefined ? (
-                          <Text style={{color: '#000'}}>{item?.phone}</Text>
+                        {item?.tags?.phone?.length !== undefined ? (
+                          <Text style={{color: '#000'}}>
+                            {item?.tags?.phone}
+                          </Text>
                         ) : (
                           <></>
                         )}
-                        {item?.website?.length !== undefined ? (
+                        {item?.tags?.website?.length !== undefined ? (
                           <Text style={{color: '#6889FF', fontWeight: '600'}}>
-                            {item?.website}
+                            {item?.tags?.website}
                           </Text>
                         ) : (
                           <></>
@@ -782,7 +822,7 @@ const EmergencyScreen = () => {
                     </View>
                   </View>
                 )}
-              </>
+              </TouchableOpacity>
             );
           }}
           keyExtractor={(item, index) => index.toString()}

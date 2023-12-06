@@ -27,17 +27,13 @@ import AccountScreen from './screens/AccountScreen';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Geolocation from '@react-native-community/geolocation';
 import StackScreen from './screens/StackScreen';
-import {
-  BottomSheetModal,
-  BottomSheetModalProvider,
-} from '@gorhom/bottom-sheet';
+import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 function App() {
   const [city, setcity] = useState();
   const Tabs = AnimatedTabBarNavigator();
   const lat = 22.639416535722226;
   const long = 88.34107229852647;
   const radius_airport = 50000;
-
 
   const apiUrl = 'https://overpass-api.de/api/interpreter';
 
@@ -79,101 +75,96 @@ out center;
     }
   };
 
-  
-
-
   useEffect(() => {
     // console.log('url', aviation_url + '&departure_iata=CCU');
     // airportCheck();
     // flightApi()
   }, []);
   return (
-    
     <GestureHandlerRootView style={{flex: 1}}>
       <BottomSheetModalProvider>
-      <NavigationContainer>
-        <SafeAreaView style={{backgroundColor: Colors.lighter, flex: 1}}>
-          <StatusBar
-            barStyle={'light-content'}
-            backgroundColor={Colors.lighter}
-            translucent={false}
-            // hidden
-          />
-          <Tabs.Navigator
-            // default configuration from React Navigation
-            tabBarOptions={{
-              activeTintColor: '#1E90FF',
-              // activeTintColor: "#2F7C6E",
-              inactiveTintColor: '#222222',
-              tabStyle: {backgroundColor: Colors.light},
-              activeBackgroundColor: Colors.lighter,
-            }}>
-            <Tabs.Screen
-              name="Search"
-              component={StackScreen}
-              options={{
-                tabBarIcon: ({focused, color, size}) => (
-                  <Ionicons
-                    name="search"
-                    size={size ? size : 24}
-                    color={focused ? color : '#222222'}
-                    focused={focused}
-                    color={color}
-                  />
-                ),
-              }}
+        <NavigationContainer>
+          <SafeAreaView style={{backgroundColor: Colors.lighter, flex: 1}}>
+            <StatusBar
+              barStyle={'light-content'}
+              backgroundColor={Colors.lighter}
+              translucent={false}
+              // hidden
             />
-            <Tabs.Screen
-              name="Explore"
-              component={ExploreScreen}
-              options={{
-                tabBarIcon: ({focused, color, size}) => (
-                  <MaterialCommunityIcons
-                    name="web"
-                    size={size ? size : 24}
-                    color={focused ? color : '#222222'}
-                    focused={focused}
-                    color={color}
-                  />
-                ),
-              }}
-            />
-            <Tabs.Screen
-              name="Trips"
-              component={TripScreen}
-              options={{
-                tabBarIcon: ({focused, color, size}) => (
-                  <MaterialCommunityIcons
-                    name="book"
-                    size={size ? size : 24}
-                    color={focused ? color : '#222222'}
-                    focused={focused}
-                    color={color}
-                  />
-                ),
-              }}
-            />
-            <Tabs.Screen
-              name="Profile"
-              component={AccountScreen}
-              options={{
-                tabBarIcon: ({focused, color, size}) => (
-                  <MaterialCommunityIcons
-                    name="account"
-                    size={size ? size : 24}
-                    color={focused ? color : '#222222'}
-                    focused={focused}
-                    color={color}
-                  />
-                ),
-              }}
-            />
-          </Tabs.Navigator>
-        </SafeAreaView>
-      </NavigationContainer>
+            <Tabs.Navigator
+              // default configuration from React Navigation
+              tabBarOptions={{
+                activeTintColor: '#1E90FF',
+                // activeTintColor: "#2F7C6E",
+                inactiveTintColor: '#222222',
+                tabStyle: {backgroundColor: Colors.light},
+                activeBackgroundColor: Colors.lighter,
+              }}>
+              <Tabs.Screen
+                name="Search"
+                component={StackScreen}
+                options={{
+                  tabBarIcon: ({focused, color, size}) => (
+                    <Ionicons
+                      name="search"
+                      size={size ? size : 24}
+                      color={focused ? color : '#222222'}
+                      focused={focused}
+                      color={color}
+                    />
+                  ),
+                }}
+              />
+              <Tabs.Screen
+                name="Explore"
+                component={ExploreScreen}
+                options={{
+                  tabBarIcon: ({focused, color, size}) => (
+                    <MaterialCommunityIcons
+                      name="web"
+                      size={size ? size : 24}
+                      color={focused ? color : '#222222'}
+                      focused={focused}
+                      color={color}
+                    />
+                  ),
+                }}
+              />
+              <Tabs.Screen
+                name="Trips"
+                component={TripScreen}
+                options={{
+                  tabBarIcon: ({focused, color, size}) => (
+                    <MaterialCommunityIcons
+                      name="book"
+                      size={size ? size : 24}
+                      color={focused ? color : '#222222'}
+                      focused={focused}
+                      color={color}
+                    />
+                  ),
+                }}
+              />
+              <Tabs.Screen
+                name="Profile"
+                component={AccountScreen}
+                options={{
+                  tabBarIcon: ({focused, color, size}) => (
+                    <MaterialCommunityIcons
+                      name="account"
+                      size={size ? size : 24}
+                      color={focused ? color : '#222222'}
+                      focused={focused}
+                      color={color}
+                    />
+                  ),
+                }}
+              />
+            </Tabs.Navigator>
+          </SafeAreaView>
+        </NavigationContainer>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
-    
   );
 }
 

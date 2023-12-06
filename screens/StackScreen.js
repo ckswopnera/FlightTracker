@@ -28,7 +28,41 @@ export default function StackScreen() {
       <Stack.Screen
         name="Tourism"
         component={TourismScreen}
-        // options={{headerShown: false}}
+        options={({navigation}) => ({
+          headerRightContainerStyle: {paddingRight: 8},
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.setParams({ isVisibleLayers: true });
+              }}>
+              <LinearGradient
+              start={{x: 0.0, y: 0.25}} end={{x: 0.5, y: 1.0}}
+              locations={[0,0.8]}
+                colors={['#5B7FFF', '#33CCFC']}
+                style={{
+                  // flex: 1,
+                  paddingHorizontal: 15,
+                  borderRadius: 8,
+                  // width: 100,
+                  // height: 50,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    // fontFamily: 'Gill Sans',
+                    textAlign: 'center',
+                    marginVertical: 4,
+                    marginHorizontal: 5,
+
+                    color: '#ffffff',
+                    backgroundColor: 'transparent',
+                  }}>
+                  Layers
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ),
+        })}
       />
       <Stack.Screen
         name="BottomSheetVIew"

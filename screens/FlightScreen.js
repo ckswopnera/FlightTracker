@@ -23,15 +23,20 @@ import {GEOAPIFY_API_KEY, YAHOO_API_KEY, PEXELS_IMAGE_API_KEY} from '@env';
 import Geolocation from '@react-native-community/geolocation';
 import Animated_loader from './Animated_Component/Loader';
 import FastImage from 'react-native-fast-image';
+import {WebView} from 'react-native-webview';
 import BottomSheet, {
   BottomSheetModal,
   useBottomSheetModal,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
+import {useDispatch} from 'react-redux';
+import {NativeViewGestureHandler} from 'react-native-gesture-handler';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import BottomSheetVIew from '../components/BottomSheetVIew';
 import {Table, Row, Rows} from 'react-native-reanimated-table';
 import YoutubevideoPage from '../components/YoutubevideoPage';
+import YoutubePlayer from 'react-native-youtube-iframe';
+import Skeleton_small from './Animated_Component/Skeleton_small';
 
 const imageLinks = [
   {
@@ -268,12 +273,12 @@ export default function FlightScreen() {
   const [imagesrc, setImagesrc] = useState();
   const [place_coordinate, setPlace_coordinate] = useState();
   const [placeDetails, setPlaceDetails] = useState();
-  const [myLocation, setmyLocation] = useState();
   const [photo_pressed_id, setphoto_pressed_id] = useState();
+  const [photo_long_pressed_id, setphoto_long_pressed_id] = useState();
   const [loading, setLoading] = useState(true);
   const {dismiss, dismissAll} = useBottomSheetModal();
   const [imageClick, setImageClick] = useState();
-
+  const [position, setPosition] = useState(null);
   const tableHead = ['TYPE', 'ALTITUDE, M', 'NAME', 'COUNTRY', 'AIRPORT CODE'];
   const [topTenAirports, settopTenAirports] =
     useState(`Guangzhou, China (CAN) – 43,767,558
@@ -290,7 +295,7 @@ export default function FlightScreen() {
 
   // ref
   const bottomSheetModalRef = useRef(null);
-
+  const gestureRef = useRef(null);
   // variables
   const snapPoints = useMemo(() => ['70%', '90%'], []);
 
@@ -317,50 +322,45 @@ export default function FlightScreen() {
       })
       .catch(err => console.log(err));
   };
-  const place_details = async () => {
+  const place_details = async coords => {
     setLoading(true);
     // Define the categories of tourist places
     const category = 'tourism.attraction,tourism,tourism.sights';
 
     const radius = 10000;
     // Define the limit of results
-    const limit = 5;
+    const limit = 1;
 
-    await Geolocation.getCurrentPosition(
-      info => {
-        const {latitude, longitude} = info.coords;
-        // Make a request to the Nominatim API for reverse geocoding
-        fetch(
-          `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${longitude},${latitude},${radius}&bias=proximity:${longitude},${latitude}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`,
-        )
-          .then(response => response.json())
-          .then(places => {
-            // console.log('info.coords',info.coords)
-            // console.log('Places', places?.features);
-            const place_details = places?.features?.map(
-              (i, l) => i?.properties,
-            );
-            // const place_coordinates = places?.features?.map(
-            //   (i, l) => i?.geometry?.coordinates,
-            // );
-            // console.log({place_coordinates});
-            // setPlace_coordinate(place_coordinates);
-            setPlaceDetails(place_details);
-            setmyLocation(info.coords);
-            performMultipleSearches(place_details);
-          })
+    const {latitude, longitude} = coords;
+    // Make a request to the Nominatim API for reverse geocoding
+    fetch(
+      `https://api.geoapify.com/v2/places?categories=${category}&filter=circle:${longitude},${latitude},${radius}&bias=proximity:${longitude},${latitude}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`,
+    )
+      .then(response => response.json())
+      .then(places => {
+        // console.log('info.coords',info.coords)
+        // console.log('Places', places?.features);
+        const place_details = places?.features?.map((i, l) => {
+          
+          if (i.properties.name !== "Tagore's House") {
+            // console.log("value",i.properties.name);
+            return i?.properties;
+          }
+        });
+        // const place_coordinates = places?.features?.map(
+        //   (i, l) => i?.geometry?.coordinates,
+        // );
+        // console.log({place_details});
+        // setPlace_coordinate(place_coordinates);
+        setPlaceDetails(place_details);
 
-          .catch(error => {
-            // Handle errors
-            console.error('Error:', error);
-          });
-      },
-      error => {
-        // Handle geolocation errors
-        console.error('Geolocation error:', error);
-      },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    );
+        performMultipleSearches(place_details);
+      })
+
+      .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+      });
   };
 
   async function searchPexels(query) {
@@ -415,19 +415,19 @@ export default function FlightScreen() {
   }
 
   const tourist_check = async () => {
-    const category = 'Tourist Information';
+    const category = 'tourist attraction';
     const radius = 10000;
-
+    const limit = 1;
     await Geolocation.getCurrentPosition(
       info => {
         const {latitude, longitude} = info.coords;
         // Make a request to the Nominatim API for reverse geocoding
         fetch(
-          `https://discover.search.hereapi.com/v1/discover?in=circle:${latitude},${longitude};r=${radius}&q=${category}&apiKey=${YAHOO_API_KEY}&limit=4`,
+          `https://discover.search.hereapi.com/v1/discover?in=circle:${latitude},${longitude};r=${radius}&q=${category}&apiKey=${YAHOO_API_KEY}&limit=${limit}`,
         )
           .then(response => response.json())
           .then(data => {
-            const address = data.items.map((i, l) => i?.address?.label);
+            const address = data.items.map((i, l) => i);
 
             // const contact = address?.map((item, index) => item);
             // console.log({contact});
@@ -448,7 +448,21 @@ export default function FlightScreen() {
   };
 
   useEffect(() => {
-    place_details();
+    // Get geolocation when the component mounts
+    Geolocation.getCurrentPosition(
+      geoPosition => {
+        // Set the geolocation in the state
+        setPosition(geoPosition?.coords);
+        place_details(geoPosition?.coords);
+      },
+      error => {
+        console.error('Error getting geolocation:', error);
+      },
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+    );
+  }, []);
+
+  useEffect(() => {
     // tourist_check();
     // place_image();
     var final = topTenAirports
@@ -592,6 +606,7 @@ export default function FlightScreen() {
               paddingTop: 10,
               paddingBottom: 40,
             }}>
+            {/* {loading&&<Skeleton_small/>} */}
             {imageLinks?.map((item, index) => {
               // console.log({item});
 
@@ -816,6 +831,7 @@ export default function FlightScreen() {
               alignItems: 'center',
               justifyContent: 'center',
             }}>
+            {loading && <Skeleton_small />}
             {imagesrc?.map((i, j) => {
               // console.log({i});
 
@@ -823,8 +839,18 @@ export default function FlightScreen() {
                 // console.log({k});
                 return (
                   <TouchableOpacity
+                    onLongPress={() => {
+                      setphoto_long_pressed_id(j);
+                    }}
                     onPress={() => {
+                      // console.log({i})
                       setphoto_pressed_id(j);
+                      if (position) {
+                        navigation.navigate('Tourism', {
+                          myLocation: position,
+                          place_details: [i?.query],
+                        });
+                      }
                     }}
                     key={m.toString()}
                     style={{
@@ -853,7 +879,7 @@ export default function FlightScreen() {
                           <Text style={styles.loadingText}>Loading...</Text>
                         </View>
                       )}
-                      {j === photo_pressed_id ? (
+                      {j === photo_long_pressed_id ? (
                         <View
                           style={{
                             // zIndex: 9999,
@@ -897,12 +923,14 @@ export default function FlightScreen() {
             })}
           </ScrollView>
           <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Tourism', {
-                myLocation: myLocation,
-                place_details: placeDetails,
-              })
-            }
+            onPress={() => {
+              if (position) {
+                navigation.navigate('Tourism', {
+                  myLocation: position,
+                  place_details: placeDetails,
+                });
+              }
+            }}
             style={{
               borderRadius: 8,
               width: windowWidth - 20,
