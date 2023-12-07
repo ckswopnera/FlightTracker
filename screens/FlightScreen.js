@@ -20,7 +20,7 @@ import {Button} from 'react-native';
 import {Linking} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {GEOAPIFY_API_KEY, YAHOO_API_KEY, PEXELS_IMAGE_API_KEY} from '@env';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import Animated_loader from './Animated_Component/Loader';
 import FastImage from 'react-native-fast-image';
 import {WebView} from 'react-native-webview';
@@ -329,7 +329,7 @@ export default function FlightScreen() {
 
     const radius = 10000;
     // Define the limit of results
-    const limit = 1;
+    const limit = 15;
 
     const {latitude, longitude} = coords;
     // Make a request to the Nominatim API for reverse geocoding
@@ -342,10 +342,10 @@ export default function FlightScreen() {
         // console.log('Places', places?.features);
         const place_details = places?.features?.map((i, l) => {
           
-          if (i.properties.name !== "Tagore's House") {
+          // if (i.properties.name !== "Tagore's House") {
             // console.log("value",i.properties.name);
             return i?.properties;
-          }
+          // }
         });
         // const place_coordinates = places?.features?.map(
         //   (i, l) => i?.geometry?.coordinates,
@@ -418,7 +418,7 @@ export default function FlightScreen() {
     const category = 'tourist attraction';
     const radius = 10000;
     const limit = 1;
-    await Geolocation.getCurrentPosition(
+    Geolocation.getCurrentPosition(
       info => {
         const {latitude, longitude} = info.coords;
         // Make a request to the Nominatim API for reverse geocoding
@@ -456,6 +456,7 @@ export default function FlightScreen() {
         place_details(geoPosition?.coords);
       },
       error => {
+        Alert.alert('Error getting location')
         console.error('Error getting geolocation:', error);
       },
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},

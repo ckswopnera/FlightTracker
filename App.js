@@ -25,7 +25,7 @@ import ExploreScreen from './screens/ExploreScreen';
 import TripScreen from './screens/TripScreen';
 import AccountScreen from './screens/AccountScreen';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import StackScreen from './screens/StackScreen';
 import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 function App() {

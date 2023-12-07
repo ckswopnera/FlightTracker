@@ -36,7 +36,7 @@ export default function TourismScreen(props) {
       title: 'dark-matter-brown',
       value: 'dark-matter-brown',
     },
-    
+
     {
       id: 4,
       title: 'dark-matter-yellow-roads',
@@ -66,21 +66,19 @@ export default function TourismScreen(props) {
     if (placeDetails !== undefined) {
       for (const query of placeDetails) {
         if (query?.name !== undefined) {
-          // console.log('query',query.lon)
+          console.log('query', query.name);
           allResults.push(
             {
               title: 'My location',
               add: '',
               lat: my_Location?.latitude,
               lon: my_Location?.longitude,
-              color: 'red',
             },
             {
-              title: query?.name,
+              title: query.name,
               add: query?.address_line2,
               lat: query?.lat,
               lon: query?.lon,
-              color: 'blue',
             },
           );
         }
@@ -89,7 +87,7 @@ export default function TourismScreen(props) {
     setMarkers(allResults);
     // setTimeout(() => {
     setLoading(false);
-      
+
     // }, 5000);
   };
   useEffect(() => {
@@ -102,7 +100,7 @@ export default function TourismScreen(props) {
     return markers
       ?.map(
         marker =>
-          `L.marker([${marker?.lat}, ${marker?.lon}]).bindPopup('${marker?.title}<br>${marker?.add}').addTo(map);`,
+          `L.marker([${marker?.lat}, ${marker?.lon}]).bindPopup("${marker?.title}<br>${marker?.add}").addTo(map);`,
       )
       .join('\n');
   };
@@ -156,7 +154,7 @@ export default function TourismScreen(props) {
               } else {
                 setselected_index_layers(i);
                 setIsVisibleLayers(false);
-                setselected_layers(l?.value)
+                setselected_layers(l?.value);
               }
             }}
             bottomDivider>

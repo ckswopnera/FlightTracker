@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text} from 'react-native';
 import {WebView} from 'react-native-webview';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import Animated_loader from './Animated_Component/Loader';
 export default function WebViewScreen() {
   const [location, setLocation] = useState();

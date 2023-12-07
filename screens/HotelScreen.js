@@ -5,7 +5,7 @@ import {GEOAPIFY_API_KEY, YAHOO_API_KEY, PEXELS_IMAGE_API_KEY} from '@env';
 const HotelScreen = () => {
   const markers = [
     { id: 1, title: 'Marker 1', lat: 37.78825, lon: -122.4324,color: 'red' },
-    { id: 2, title: 'Marker 2', lat: 37.78925, lon: -122.4344,color: 'green' },
+    { id: 2, title: 'Marker 2', lat: 22.5848714, lon: 88.3582411,color: 'green' },
     // Add more markers as needed
   ];
 

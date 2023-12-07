@@ -14,7 +14,7 @@ import CountryPicker, {
   TranslationLanguageCodeList,
   getAllCountries,
 } from 'react-native-country-picker-modal';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import {Field, Formik} from 'formik';
 import * as Yup from 'yup';
 import 'yup-phone-lite';
@@ -70,6 +70,7 @@ export default function AccountScreen() {
             // console.log({city});
 
             fetchData(country_code);
+            getCurrentAddress_hereMap(latitude, longitude);
           })
 
           .catch(error => {
@@ -99,43 +100,32 @@ export default function AccountScreen() {
       } else {
         console.log('Country not found');
       }
-      getCurrentAddress_hereMap();
+
       // setIsloading(false);
     } catch (error) {
       console.error('Error fetching country details:', error);
     }
   };
 
-  const getCurrentAddress_hereMap = async () => {
+  const getCurrentAddress_hereMap = async (latitude, longitude) => {
     // setIsloading(true);
+    // console.log(latitude, longitude);
+    fetch(
+      `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${latitude},${longitude}&lang=en-US&apiKey=${YAHOO_API_KEY}`,
+    )
+      .then(response => response.json())
+      .then(data => {
+        const address = data.items.map((i, l) => i.address);
 
-    await Geolocation.getCurrentPosition(
-      info => {
-        const {latitude, longitude} = info.coords;
-        // Make a request to the Nominatim API for reverse geocoding
-        fetch(
-          `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${latitude},${longitude}&lang=en-US&apiKey=${YAHOO_API_KEY}`,
-        )
-          .then(response => response.json())
-          .then(data => {
-            const address = data.items.map((i, l) => i.address);
+        // console.log('Yahoo_City_data', address[0]);
+        setYahooAddress(address[0]);
+        setIsloading(false);
+      })
 
-            // console.log('Yahoo_City_data', address[0]);
-            setYahooAddress(address[0]);
-            setIsloading(false);
-          })
-
-          .catch(error => {
-            // Handle errors
-            console.error('Error:', error);
-          });
-      },
-      error => {
-        // Handle geolocation errors
-        console.error('Geolocation error:', error);
-      },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    );
+      .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+      });
   };
 
   useEffect(() => {
@@ -251,7 +241,7 @@ export default function AccountScreen() {
                   onChangeText={handleChange('name')}
                   onBlur={handleBlur('name')}
                   value={values.name}
-                  // placeholderTextColor={colors.light_textColor}
+                  placeholderTextColor="rgba(0,0,0,0.6)"
                   cursorColor={'#000'}
                   style={{
                     color: colors.light_textColor,
@@ -288,7 +278,7 @@ export default function AccountScreen() {
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
                   value={values.email}
-                  // placeholderTextColor={colors.light_textColor}
+                  placeholderTextColor="rgba(0,0,0,0.6)"
                   keyboardType="email-address"
                   cursorColor={'#000'}
                   style={{
@@ -326,7 +316,7 @@ export default function AccountScreen() {
                   onChangeText={handleChange('address')}
                   onBlur={handleBlur('address')}
                   value={values.address}
-                  // placeholderTextColor={colors.light_textColor}
+                  placeholderTextColor="rgba(0,0,0,0.6)"
                   cursorColor={'#000'}
                   style={{
                     color: colors.light_textColor,
@@ -352,7 +342,7 @@ export default function AccountScreen() {
                 onChangeText={handleChange('address2')}
                 onBlur={handleBlur('address2')}
                 value={values.address2}
-                // placeholderTextColor={colors.light_textColor}
+                placeholderTextColor="rgba(0,0,0,0.6)"
                 cursorColor={'#000'}
                 style={{
                   color: colors.light_textColor,
@@ -395,7 +385,7 @@ export default function AccountScreen() {
                     onChangeText={handleChange('city')}
                     onBlur={handleBlur('city')}
                     value={values.city}
-                    // placeholderTextColor={colors.light_textColor}
+                    placeholderTextColor="rgba(0,0,0,0.6)"
                     cursorColor={'#000'}
                     style={{
                       color: colors.light_textColor,
@@ -426,7 +416,7 @@ export default function AccountScreen() {
                   <TextInput
                     placeholder="Pin Code"
                     onChangeText={handleChange('pincode')}
-                    // placeholderTextColor={colors.light_textColor}
+                    placeholderTextColor="rgba(0,0,0,0.6)"
                     maxLength={9}
                     keyboardType="number-pad"
                     onBlur={handleBlur('pincode')}
@@ -555,7 +545,7 @@ export default function AccountScreen() {
                     placeholder="State"
                     onChangeText={handleChange('state')}
                     onBlur={handleBlur('state')}
-                    // placeholderTextColor={colors.light_textColor}
+                    placeholderTextColor="rgba(0,0,0,0.6)"
                     value={values.state}
                     cursorColor={'#000'}
                     style={{
@@ -622,6 +612,7 @@ export default function AccountScreen() {
                   }}>
                   <TextInput
                     placeholder="Phone number"
+                    placeholderTextColor="rgba(0,0,0,0.6)"
                     onChangeText={handleChange('phonenumber')}
                     onBlur={handleBlur('phonenumber')}
                     value={values.phonenumber}
