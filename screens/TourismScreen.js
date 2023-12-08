@@ -132,7 +132,6 @@ export default function TourismScreen(props) {
       console.log('All results:', allResults);
 
       setImages(allResults);
-
     } catch {
       err => console.log(err);
     }
@@ -230,13 +229,20 @@ export default function TourismScreen(props) {
     <br/>
 
 
-            <img src="${nearBy?.thumbnail?.source}" style="width: 100%; height: auto;" />
+            <img src="${
+              nearBy?.thumbnail?.source
+            }" style="width: 100%; height: auto;" />
 
             <br/>
             </br/>
             <h2>Other Images</h2>
             
-            ${images.map(imageUrl => `<img src="${imageUrl}" style="width: 100%; height: auto;" />`).join('')}
+            ${images
+              ?.map(
+                imageUrl =>
+                  `<img src="${imageUrl}" style="width: 50%; height: auto; marginHorizontal:2px;marginVertical:2px" />`,
+              )
+              .join('')}
     
           </body>
         </html>
