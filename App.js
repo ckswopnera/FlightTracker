@@ -95,7 +95,7 @@ out center;
               // default configuration from React Navigation
               tabBarOptions={{
                 activeTintColor: '#1E90FF',
-                // activeTintColor: "#2F7C6E",
+                // activeTintColor: "#c",
                 inactiveTintColor: '#222222',
                 tabStyle: {backgroundColor: Colors.light},
                 activeBackgroundColor: Colors.lighter,

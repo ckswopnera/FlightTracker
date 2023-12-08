@@ -19,7 +19,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {Button} from 'react-native';
 import {Linking} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {GEOAPIFY_API_KEY, YAHOO_API_KEY, PEXELS_IMAGE_API_KEY} from '@env';
+import {
+  GEOAPIFY_API_KEY,
+  YAHOO_API_KEY,
+  PEXELS_IMAGE_API_KEY,
+  FLICKR_IMAGE_API_KEY,
+} from '@env';
 import Geolocation from 'react-native-geolocation-service';
 import Animated_loader from './Animated_Component/Loader';
 import FastImage from 'react-native-fast-image';
@@ -329,7 +334,7 @@ export default function FlightScreen() {
 
     const radius = 10000;
     // Define the limit of results
-    const limit = 15;
+    const limit = 5;
 
     const {latitude, longitude} = coords;
     // Make a request to the Nominatim API for reverse geocoding
@@ -341,10 +346,9 @@ export default function FlightScreen() {
         // console.log('info.coords',info.coords)
         // console.log('Places', places?.features);
         const place_details = places?.features?.map((i, l) => {
-          
           // if (i.properties.name !== "Tagore's House") {
-            // console.log("value",i.properties.name);
-            return i?.properties;
+          // console.log("value",i.properties.name);
+          return i?.properties;
           // }
         });
         // const place_coordinates = places?.features?.map(
@@ -384,6 +388,29 @@ export default function FlightScreen() {
     const data = await response.json();
     return data;
   }
+  const searchPhotoByName_flickr = async photoName => {
+    const apiUrl = 'https://www.flickr.com/services/rest/';
+    const method = 'flickr.photos.search';
+    const format = 'json';
+    const nojsoncallback = 1;
+
+    // Construct the full API URL with parameters
+    const fullUrl = `${apiUrl}?method=${method}&api_key=${FLICKR_IMAGE_API_KEY}&text=${encodeURIComponent(
+      photoName,
+    )}&format=${format}&nojsoncallback=${nojsoncallback}`;
+
+    try {
+      // Make the API request using fetch
+      const response = await fetch(fullUrl);
+      const data = await response.json();
+      return data;
+      // Handle the data from the API response
+      // console.log("flickr_data",data);
+    } catch (error) {
+      // Handle errors
+      console.error('Error fetching data from Flickr API:', error);
+    }
+  };
 
   // Function to perform multiple searches from an array of queries
   async function performMultipleSearches(queries) {
@@ -397,9 +424,21 @@ export default function FlightScreen() {
           const results = await searchPexels(query?.name);
           // console.log(`Results for ${query}:`, results?.photos);
           const image = results?.photos?.map((i, j) => i?.src?.large);
-          // const image22 = results?.photos?.map((i, j) => i?.alt);
+          
+          // const result_flickr = await searchPhotoByName_flickr(query?.name);
+    
+          // const photos = result_flickr.photos.photo;
 
-          // console.log({image22});
+          // if (photos.length > 0) {
+          //   // Extract URL of the first photo
+          //   const firstPhoto = photos[1];
+          //   const photoUrl = `https://farm${firstPhoto.farm}.staticflickr.com/${firstPhoto.server}/${firstPhoto.id}_${firstPhoto.secret}.jpg`;
+
+          //   // Log the photo URL
+          //   console.log('Photo URL:', photoUrl);
+          // } else {
+          //   console.log('No photos found.');
+          // }
           allResults.push({query, image});
         }
       }
@@ -456,7 +495,7 @@ export default function FlightScreen() {
         place_details(geoPosition?.coords);
       },
       error => {
-        Alert.alert('Error getting location')
+        Alert.alert('Error getting location');
         console.error('Error getting geolocation:', error);
       },
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
@@ -844,7 +883,7 @@ export default function FlightScreen() {
                       setphoto_long_pressed_id(j);
                     }}
                     onPress={() => {
-                      // console.log({i})
+                      // console.log(i.query.name)
                       setphoto_pressed_id(j);
                       if (position) {
                         navigation.navigate('Tourism', {
