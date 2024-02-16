@@ -19,16 +19,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {Button} from 'react-native';
 import {Linking} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {
-  GEOAPIFY_API_KEY,
-  YAHOO_API_KEY,
-  PEXELS_IMAGE_API_KEY,
-  FLICKR_IMAGE_API_KEY,
-} from '@env';
+import {GEOAPIFY_API_KEY, YAHOO_API_KEY, PEXELS_IMAGE_API_KEY} from '@env';
 import Geolocation from 'react-native-geolocation-service';
 import Animated_loader from './Animated_Component/Loader';
 import FastImage from 'react-native-fast-image';
-import {WebView} from 'react-native-webview';
 import BottomSheet, {
   BottomSheetModal,
   useBottomSheetModal,
@@ -308,25 +302,6 @@ export default function FlightScreen() {
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
-
-  const place_image = async () => {
-    const search_data = 'Frances Johnson’s Mausoleum';
-
-    fetch(`https://api.pexels.com/v1/search?query=${search_data}&per_page=1`, {
-      headers: {
-        Authorization: PEXELS_IMAGE_API_KEY,
-      },
-    })
-      .then(response => response.json())
-      .then(result => {
-        console.log(result);
-
-        setImagesrc(result?.photos);
-        const image = result?.photos?.map((i, j) => i?.src?.large);
-        console.log({image});
-      })
-      .catch(err => console.log(err));
-  };
   const place_details = async coords => {
     setLoading(true);
     // Define the categories of tourist places
@@ -367,6 +342,44 @@ export default function FlightScreen() {
       });
   };
 
+  // async function searchImage_wikipedia(query) {
+  //   const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&prop=pageimages|pageterms&piprop=thumbnail&pithumbsize=600&titles=${query}`;
+  //   const response = await fetch(url);
+  //   // console.log({response})
+  //   if (!response.ok) {
+  //     // throw new Error(`Failed to fetch data! Status: ${response.status}`);
+  //     Alert.alert('Failed to fetch data!');
+  //   }
+
+  //   const data = await response.json();
+  //   return data;
+  // }
+
+  async function searchImage_wikipedia(query) {
+    const url = `https://commons.wikimedia.org/w/api.php?prop=pageimages%7Cimageinfo%7Cinfo%7Credirects&gsrnamespace=6&pilimit=max&pithumbsize=400&iiprop=extmetadata&iiextmetadatafilter=ImageDescription&action=query&inprop=url&redirects=&format=json&generator=search&gsrsearch=intitle:${query}&gsrlimit=1`;
+    const response = await fetch(url);
+    // console.log({response})
+    if (!response.ok) {
+      // throw new Error(`Failed to fetch data! Status: ${response.status}`);
+      Alert.alert('Failed to fetch data!');
+    }
+
+    const data = await response.json();
+    // console.log({data})
+    const allResults = [];
+    if(data.query!==undefined){
+    for (const key in data.query.pages) {
+      if (data.query.pages.hasOwnProperty(key)) {
+        const value = data.query.pages[key];
+        allResults.push(value);
+
+        // break;
+      }
+    }}
+    // console.log({allResults})
+
+    return allResults;
+  }
   async function searchPexels(query) {
     const photo_count = 1;
     const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(
@@ -388,58 +401,36 @@ export default function FlightScreen() {
     const data = await response.json();
     return data;
   }
-  const searchPhotoByName_flickr = async photoName => {
-    const apiUrl = 'https://www.flickr.com/services/rest/';
-    const method = 'flickr.photos.search';
-    const format = 'json';
-    const nojsoncallback = 1;
-
-    // Construct the full API URL with parameters
-    const fullUrl = `${apiUrl}?method=${method}&api_key=${FLICKR_IMAGE_API_KEY}&text=${encodeURIComponent(
-      photoName,
-    )}&format=${format}&nojsoncallback=${nojsoncallback}`;
-
-    try {
-      // Make the API request using fetch
-      const response = await fetch(fullUrl);
-      const data = await response.json();
-      return data;
-      // Handle the data from the API response
-      // console.log("flickr_data",data);
-    } catch (error) {
-      // Handle errors
-      console.error('Error fetching data from Flickr API:', error);
-    }
-  };
 
   // Function to perform multiple searches from an array of queries
   async function performMultipleSearches(queries) {
+    // console.log({queries});
     try {
       // console.log({queries})
+
       const allResults = [];
       for (const query of queries) {
-        // console.log('query',query)
+        // console.log('query',query?.name)
         // console.log('query?.name',query?.name)
-        if (query?.name !== undefined) {
-          const results = await searchPexels(query?.name);
-          // console.log(`Results for ${query}:`, results?.photos);
-          const image = results?.photos?.map((i, j) => i?.src?.large);
-          
-          // const result_flickr = await searchPhotoByName_flickr(query?.name);
-    
-          // const photos = result_flickr.photos.photo;
+        const name = query?.title === undefined ? query?.name : query?.title;
+        if (name !== undefined) {
+          // console.log(name);
+          if (query?.title !== undefined) {
+            const search = await searchImage_wikipedia(name);
+            // console.log('search', search);
+            const image = search?.map((i,j)=>{
+              // console.log('thumbnail',i)
+              return i?.thumbnail?.source});
 
-          // if (photos.length > 0) {
-          //   // Extract URL of the first photo
-          //   const firstPhoto = photos[1];
-          //   const photoUrl = `https://farm${firstPhoto.farm}.staticflickr.com/${firstPhoto.server}/${firstPhoto.id}_${firstPhoto.secret}.jpg`;
+            allResults.push({query, image});
+            
+          } else {
+            const results = await searchPexels(name);
+            // console.log(`Results for ${query}:`, results?.photos);
+            const image = results?.photos?.map((i, j) => i?.src?.large);
 
-          //   // Log the photo URL
-          //   console.log('Photo URL:', photoUrl);
-          // } else {
-          //   console.log('No photos found.');
-          // }
-          allResults.push({query, image});
+            allResults.push({query, image});
+          }
         }
       }
       // console.log('All results:', allResults);
@@ -453,65 +444,61 @@ export default function FlightScreen() {
     }
   }
 
-  const tourist_check = async () => {
-    const category = 'tourist attraction';
+  const tourist_check = async coords => {
+    const category = 'Sights and Museums';
     const radius = 10000;
     const limit = 1;
-    Geolocation.getCurrentPosition(
-      info => {
-        const {latitude, longitude} = info.coords;
-        // Make a request to the Nominatim API for reverse geocoding
-        fetch(
-          `https://discover.search.hereapi.com/v1/discover?in=circle:${latitude},${longitude};r=${radius}&q=${category}&apiKey=${YAHOO_API_KEY}&limit=${limit}`,
-        )
-          .then(response => response.json())
-          .then(data => {
-            const address = data.items.map((i, l) => i);
+    const {latitude, longitude} = coords;
 
-            // const contact = address?.map((item, index) => item);
-            // console.log({contact});
-            console.log('address', address);
-          })
+    // Make a request to the Nominatim API for reverse geocoding
+    fetch(
+      `https://discover.search.hereapi.com/v1/discover?in=circle:${latitude},${longitude};r=${radius}&q=${category}&apiKey=${YAHOO_API_KEY}&limit=${limit}`,
+    )
+      .then(response => response.json())
+      .then(data => {
+        const full_details = data?.items?.map((i, l) => i);
 
-          .catch(error => {
-            // Handle errors
-            console.error('Error:', error);
-          });
-      },
-      error => {
-        // Handle geolocation errors
-        console.error('Geolocation error:', error);
-      },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    );
+        // const contact = address?.map((item, index) => item);
+        // console.log({contact});
+        // console.log('address', full_details);
+        setPlaceDetails({name: full_details?.title, details: full_details});
+        performMultipleSearches(full_details);
+      })
+
+      .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+      });
   };
 
-  useEffect(() => {
-    // Get geolocation when the component mounts
-    Geolocation.getCurrentPosition(
-      geoPosition => {
-        // Set the geolocation in the state
-        setPosition(geoPosition?.coords);
-        place_details(geoPosition?.coords);
-      },
-      error => {
-        Alert.alert('Error getting location');
-        console.error('Error getting geolocation:', error);
-      },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    );
-  }, []);
+  const getLocation=async()=>{
+        // Get geolocation when the component mounts
+       await Geolocation.getCurrentPosition(
+          geoPosition => {
+            // console.log({geoPosition})
+            // Set the geolocation in the state
+            setPosition(geoPosition?.coords);
+            
+            place_details(geoPosition?.coords);
+            // tourist_check(geoPosition?.coords);
+          },
+          error => {
+            Alert.alert('Error getting location');
+            console.error('Error getting geolocation:', error);
+          },
+          {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+        );
+  }
 
   useEffect(() => {
-    // tourist_check();
-    // place_image();
+    getLocation();
     var final = topTenAirports
-      .split('\n')
-      .map(function (txt) {
-        return c++ + '. ' + txt + '\n';
-      })
-      .join('');
-    settopTenAirports(final);
+    .split('\n')
+    .map(function (txt) {
+      return c++ + '. ' + txt + '\n';
+    })
+    .join('');
+  settopTenAirports(final);
   }, []);
 
   return (
@@ -571,6 +558,7 @@ export default function FlightScreen() {
             }}>
             Explore from your city
           </Text>
+          <TouchableOpacity onPress={()=>navigation.navigate('Place Search')}>
           <Image
             source={require('../assets/image/maps/world_airport3.png')}
             style={{
@@ -581,18 +569,22 @@ export default function FlightScreen() {
             }}
             resizeMethod="scale"
             resizeMode="cover"
+            
           />
+          </TouchableOpacity>
           <Text style={{color: '#000'}}>See the world on your budget</Text>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Place Search')}
+            onPress={() => navigation.navigate('Explore', {
+              screen: 'ExploreScreen'})
+          }
             style={{
               borderRadius: 8,
               width: windowWidth - 20,
               flexDirection: 'row',
+              backgroundColor: 'rgba(0,0,0,0.8)',
               alignItems: 'center',
               justifyContent: 'center',
               padding: 14,
-              backgroundColor: 'rgba(0,0,0,0.8)',
               marginTop: 20,
             }}>
             <Text
@@ -615,6 +607,7 @@ export default function FlightScreen() {
             marginTop: 50,
             width: '100%',
             flexDirection: 'column',
+            // backgroundColor:'red'
           }}>
           <Text
             style={{
@@ -646,51 +639,66 @@ export default function FlightScreen() {
               paddingTop: 10,
               paddingBottom: 40,
             }}>
-            {/* {loading&&<Skeleton_small/>} */}
-            {imageLinks?.map((item, index) => {
-              // console.log({item});
+            {loading === true ? (
+              <Skeleton_small />
+            ) : (
+              <>
+                {imageLinks?.map((item, index) => {
+                  // console.log({item});
 
-              return (
-                <TouchableOpacity
-                  onPress={() => {
-                    handlePresentModalPress();
-                    // console.log({item})
-                    setImageClick(item);
-                  }}
-                  key={index.toString()}
-                  style={{
-                    flexDirection: 'column',
-                    height: 120,
-                    width: 100,
-                    backgroundColor: 'transparent',
-                    margin: 4,
-                    borderRadius: 8,
-                  }}>
-                  <ImageBackground
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        handlePresentModalPress();
+                        // console.log({item})
+                        setImageClick(item);
+                      }}
+                      key={index.toString()}
+                      style={{
+                        flexDirection: 'column',
+                        height: 120,
+                        width: 100,
+                        backgroundColor: 'transparent',
+                        margin: 4,
+                        borderRadius: 8,
+                      }}>
+                      {/* <ImageBackground
                     source={item?.src}
                     imageStyle={{borderRadius: 8}}
                     style={{height: 100, width: 100, borderRadius: 8}}
                     resizeMode="cover"
                     resizeMethod="scale">
-                    {/* {loading && (
+                    {loading && (
                       <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color="white" />
                         <Text style={styles.loadingText}>Loading...</Text>
                       </View>
-                    )} */}
-                  </ImageBackground>
-                  <Text
-                    style={{
-                      color: '#000',
-                      textAlign: 'center',
-                      fontSize: 10,
-                      fontWeight: 'bold',
-                    }}>
-                    {item?.title}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                    )}
+                  </ImageBackground> */}
+
+                      <Image
+                        source={item?.src}
+                        imageStyle={{borderRadius: 8}}
+                        style={{height: 100, width: 100, borderRadius: 8}}
+                        resizeMode="cover"
+                        resizeMethod="scale"
+                        // loadingIndicatorSource={<ActivityIndicator/>}
+                      />
+
+                      <Text
+                        style={{
+                          color: '#000',
+                          textAlign: 'center',
+                          fontSize: 10,
+                          fontWeight: 'bold',
+                        }}>
+                        {item?.title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </>
+            )}
           </ScrollView>
           <BottomSheetModal
             ref={bottomSheetModalRef}
@@ -739,7 +747,13 @@ export default function FlightScreen() {
                 ) : null,
               )}
               <Text style={styles.HeaderTitle}>{imageClick?.title}</Text>
-              <Text style={{textAlign: 'justify', fontSize: 14, padding: 8}}>
+              <Text
+                style={{
+                  textAlign: 'justify',
+                  fontSize: 14,
+                  padding: 8,
+                  color: 'rgba(0,0,0,0.6)',
+                }}>
                 Airports are conveniences to park and support aircraft and a
                 control tower. An airport consists of a landing area, which
                 contains an aerially open space including at least one
@@ -753,7 +767,13 @@ export default function FlightScreen() {
                 existing airports.
               </Text>
 
-              <Text style={{textAlign: 'justify', fontSize: 14, padding: 8}}>
+              <Text
+                style={{
+                  textAlign: 'justify',
+                  fontSize: 14,
+                  padding: 8,
+                  color: 'rgba(0,0,0,0.6)',
+                }}>
                 Small airports account for more than half of all airports in the
                 world (36,307). The total number of heliports in the world is
                 15,267. The number of medium and large airports is 4,513 and
@@ -761,7 +781,13 @@ export default function FlightScreen() {
                 and 37 balloon ports worldwide.
               </Text>
 
-              <Text style={{textAlign: 'justify', fontSize: 14, padding: 8}}>
+              <Text
+                style={{
+                  textAlign: 'justify',
+                  fontSize: 14,
+                  padding: 8,
+                  color: 'rgba(0,0,0,0.6)',
+                }}>
                 College Park Airport, established in 1909 In Maryland (U.S.) by
                 Wilbur Wright, is acknowledged as the world’s oldest
                 continuously functioning airfield, although it operates only in
@@ -780,11 +806,18 @@ export default function FlightScreen() {
                   fontSize: 16,
                   padding: 8,
                   fontWeight: 'bold',
+                  color: 'rgba(0,0,0,1)',
                 }}>
                 Top 10 world’s busiest airports in 2020 by the total number of
                 passengers
               </Text>
-              <Text style={{textAlign: 'justify', fontSize: 14, padding: 8}}>
+              <Text
+                style={{
+                  textAlign: 'justify',
+                  fontSize: 14,
+                  padding: 8,
+                  color: 'rgba(0,0,0,0.6)',
+                }}>
                 {topTenAirports}
               </Text>
               {imageClick?.title2 !== undefined ? (
@@ -856,7 +889,7 @@ export default function FlightScreen() {
               fontWeight: '500',
               marginBottom: 4,
             }}>
-            Discover your next adventure
+            Discover your next nearest places
           </Text>
 
           <ScrollView
@@ -868,12 +901,10 @@ export default function FlightScreen() {
               justifyContent: 'center',
               paddingTop: 10,
               // paddingBottom: 20,
-              alignItems: 'center',
-              justifyContent: 'center',
             }}>
             {loading && <Skeleton_small />}
             {imagesrc?.map((i, j) => {
-              // console.log({i});
+              // console.log('title',i?.query?.title);
 
               return i?.image?.map((k, m) => {
                 // console.log({k});
@@ -913,12 +944,6 @@ export default function FlightScreen() {
                         priority: FastImage.priority.normal,
                       }}
                       resizeMode={FastImage.resizeMode.cover}>
-                      {loading && (
-                        <View style={styles.loadingContainer}>
-                          <ActivityIndicator size="large" color="white" />
-                          <Text style={styles.loadingText}>Loading...</Text>
-                        </View>
-                      )}
                       {j === photo_long_pressed_id ? (
                         <View
                           style={{
@@ -941,7 +966,7 @@ export default function FlightScreen() {
                               fontSize: 8,
                               textAlign: 'center',
                             }}>
-                            {i?.query?.address_line2}
+                            {i?.query?.address_line2===undefined?i?.query?.address?.label:i?.query?.address_line2}
                           </Text>
                         </View>
                       ) : (
@@ -955,7 +980,7 @@ export default function FlightScreen() {
                         fontSize: 10,
                         fontWeight: 'bold',
                       }}>
-                      {i?.query?.name}
+                      {i?.query?.name===undefined?i?.query?.title:i?.query?.name}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -1031,7 +1056,13 @@ const styles = StyleSheet.create({
     padding: 2,
     fontSize: 12,
     fontWeight: 'bold',
+    color: 'rgba(0,0,0,0.6)',
   },
-  textRowBody: {textAlign: 'center', padding: 2, fontSize: 12},
+  textRowBody: {
+    textAlign: 'center',
+    padding: 2,
+    fontSize: 12,
+    color: 'rgba(0,0,0,0.6)',
+  },
   table: {borderWidth: 2, borderColor: '#c8e1ff'},
 });

@@ -21,6 +21,7 @@ import {ActivityIndicator} from 'react-native';
 import Animated_loader from './Animated_Component/Loader';
 import Skeleton from './Animated_Component/Skeleton';
 import {useRoute} from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
@@ -44,7 +45,7 @@ const EmergencyScreen = () => {
   const [radius_hospital, setradius_hospital] = useState(2000);
   const [radius_police, setradius_police] = useState(10000);
   const [radius_fire_station, setradius_fire_station] = useState(20000);
-  const [selected_index_radius, setselected_index_radius] = useState();
+  const [selected_index_radius, setselected_index_radius] = useState(null);
 
   const [isLoading, setisLoading] = useState(false);
   const [isLoadingFirstRender, setisLoadingFirstRender] = useState(true);
@@ -149,7 +150,11 @@ const EmergencyScreen = () => {
             // console.log({hospital_lat_lon_data});
             sethospitalData(hospital_dictrict_data);
           })
-          .then(() => setisLoading(false))
+          .then(() =>
+            setTimeout(() => {
+              setisLoading(false);
+            }, 3000),
+          )
           .catch(
             error => {
               // Handle errors here
@@ -198,7 +203,11 @@ const EmergencyScreen = () => {
             // console.log({police_data});
             setpoliceData(police_data);
           })
-          .then(() => setisLoading(false))
+          .then(() =>
+            setTimeout(() => {
+              setisLoading(false);
+            }, 3000),
+          )
           .catch(
             error => {
               // Handle errors here
@@ -248,7 +257,11 @@ const EmergencyScreen = () => {
             // console.log({fire_station_data});
             setfireStationData(fire_station_data);
           })
-          .then(() => setisLoading(false))
+          .then(() =>
+            setTimeout(() => {
+              setisLoading(false);
+            }, 3000),
+          )
           .catch(
             error => {
               // Handle errors here
@@ -298,165 +311,206 @@ const EmergencyScreen = () => {
           }}
           ListHeaderComponent={
             <>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  // borderRadius: 10,
-                  width: windowWidth,
-                  padding: 6,
-                  // borderTopWidth:0.5,
-                  borderBottomWidth: 0.5,
-                  borderColor: 'rgba(0,0,0,0.4)',
-                }}>
+              <TouchableOpacity onPress={() => expanded_Hospital()}>
                 <View
                   style={{
                     flexDirection: 'row',
-
                     alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    width: '60%',
+                    justifyContent: 'space-between',
+                    backgroundColor: 'rgba(255,255,255,0.6)',
+                    // borderRadius: 10,
+                    width: windowWidth,
+                    padding: 6,
+                    // borderTopWidth:0.5,
+                    borderBottomWidth: 0.5,
+                    borderColor: 'rgba(0,0,0,0.4)',
                   }}>
-                  <MaterialCommunityIcons
-                    name="hospital"
-                    size={30}
-                    color="red"
-                  />
-                  <Text
+                  <View
                     style={{
-                      color: '#000',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      fontSize: 16,
-                    }}>
-                    Hospital
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    width: '40%',
-                  }}>
-                  <AntDesign
-                    name={expandedHospital === false ? 'down' : 'up'}
-                    size={20}
-                    style={{marginRight: 8}}
-                    color="rgba(0,0,0,0.6)"
-                    onPress={() => expanded_Hospital()}
-                  />
-                </View>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  // borderRadius: 10,
-                  width: windowWidth,
-                  padding: 6,
-                  // borderTopWidth:0.5,
-                  borderBottomWidth: 0.5,
-                  borderColor: 'rgba(0,0,0,0.4)',
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
+                      flexDirection: 'row',
 
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    width: '60%',
-                  }}>
-                  <MaterialIcons
-                    name="local-police"
-                    size={25}
-                    color="#6889FF"
-                  />
-                  <Text
-                    style={{
-                      color: '#000',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      fontSize: 16,
-                      paddingLeft: 8,
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                      width: '60%',
                     }}>
-                    Police Station
-                  </Text>
+                    <MaterialCommunityIcons
+                      name="hospital"
+                      size={30}
+                      color="red"
+                    />
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        fontSize: 16,
+                      }}>
+                      Hospital
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      width: '40%',
+                    }}>
+                    <MaterialCommunityIcons
+                      name={
+                        expandedHospital === false
+                          ? 'arrow-down-drop-circle'
+                          : 'arrow-up-drop-circle'
+                      }
+                      size={20}
+                      style={{marginRight: 8}}
+                      color={
+                        expandedHospital === false ? 'rgba(0,0,0,0.6)' : 'green'
+                      }
+                      onPress={() => expanded_Hospital()}
+                    />
+                  </View>
                 </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => expanded_Police()}>
                 <View
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    width: '40%',
+                    justifyContent: 'space-between',
+                    backgroundColor: 'rgba(255,255,255,0.6)',
+                    // borderRadius: 10,
+                    width: windowWidth,
+                    padding: 6,
+                    // borderTopWidth:0.5,
+                    borderBottomWidth: 0.5,
+                    borderColor: 'rgba(0,0,0,0.4)',
                   }}>
-                  <AntDesign
-                    name={expandedPolice === false ? 'down' : 'up'}
-                    size={20}
-                    style={{marginRight: 8}}
-                    color="rgba(0,0,0,0.6)"
-                    onPress={() => expanded_Police()}
-                  />
-                </View>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  // borderRadius: 10,
-                  width: windowWidth,
-                  padding: 6,
-                  // borderTopWidth:0.5,
-                  borderBottomWidth: 0.5,
-                  borderColor: 'rgba(0,0,0,0.4)',
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
+                  <View
+                    style={{
+                      flexDirection: 'row',
 
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    width: '60%',
-                  }}>
-                  <MaterialCommunityIcons
-                    name="fire-truck"
-                    size={30}
-                    color="red"
-                  />
-                  <Text
-                    style={{
-                      color: '#000',
-                      fontWeight: 'bold',
-                      textAlign: 'center',
-                      fontSize: 16,
-                      paddingLeft: 8,
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                      width: '60%',
                     }}>
-                    Fire Station
-                  </Text>
+                    <MaterialIcons
+                      name="local-police"
+                      size={25}
+                      color="#6889FF"
+                    />
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        fontSize: 16,
+                        paddingLeft: 8,
+                      }}>
+                      Police Station
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      width: '40%',
+                    }}>
+                    <MaterialCommunityIcons
+                      name={
+                        expandedPolice === false
+                          ? 'arrow-down-drop-circle'
+                          : 'arrow-up-drop-circle'
+                      }
+                      size={20}
+                      style={{marginRight: 8}}
+                      color={
+                        expandedPolice === false ? 'rgba(0,0,0,0.6)' : 'green'
+                      }
+                      onPress={() => expanded_Police()}
+                    />
+                  </View>
                 </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => expanded_Firestation()}>
                 <View
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    width: '40%',
+                    justifyContent: 'space-between',
+                    backgroundColor: 'rgba(255,255,255,0.6)',
+                    // borderRadius: 10,
+                    width: windowWidth,
+                    padding: 6,
+                    // borderTopWidth:0.5,
+                    borderBottomWidth: 0.5,
+                    borderColor: 'rgba(0,0,0,0.4)',
                   }}>
-                  <AntDesign
-                    name={expandedFirestaion === false ? 'down' : 'up'}
-                    size={20}
-                    style={{marginRight: 8}}
-                    color="rgba(0,0,0,0.6)"
-                    onPress={() => expanded_Firestation()}
-                  />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+
+                      alignItems: 'center',
+                      justifyContent: 'flex-start',
+                      width: '60%',
+                    }}>
+                    <MaterialCommunityIcons
+                      name="fire-truck"
+                      size={30}
+                      color="red"
+                    />
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        fontSize: 16,
+                        paddingLeft: 8,
+                      }}>
+                      Fire Station
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      width: '40%',
+                    }}>
+                    <MaterialCommunityIcons
+                      name={
+                        expandedFirestaion === false
+                          ? 'arrow-down-drop-circle'
+                          : 'arrow-up-drop-circle'
+                      }
+                      size={20}
+                      style={{marginRight: 8}}
+                      color={
+                        expandedFirestaion === false
+                          ? 'rgba(0,0,0,0.6)'
+                          : 'green'
+                      }
+                      onPress={() => expanded_Firestation()}
+                    />
+                  </View>
                 </View>
+              </TouchableOpacity>
+              <View style={{
+                  paddingVertical:8
+
+              }}>
+              {/* <Text
+                style={{
+                  letterSpacing: 1,
+                  color: '#000',
+                  fontWeight: '900',
+                  fontSize: 18,
+                }}>
+                List
+              </Text> */}
               </View>
-              {isLoading && <Animated_loader />}
+
+              {/* {isLoading && <Animated_loader />} */}
 
               <BottomSheet isVisible={isVisibleDiameter}>
                 {list.map((l, i) => (
@@ -481,8 +535,28 @@ const EmergencyScreen = () => {
                         {l.title}
                       </ListItem.Title>
                     </ListItem.Content>
-                    {l.id === selected_index_radius ? (
-                      // <MaterialCommunityIcons name="check" size={20} />
+                    {selected_index_radius === null &&
+                    expandedHospital === true &&
+                    l.id == 0 ? (
+                      <Image
+                        source={require('../assets/icon/check_mark.png')}
+                        style={{height: 20, width: 20, resizeMode: 'contain'}}
+                      />
+                    ) : selected_index_radius === null &&
+                      expandedPolice === true &&
+                      l.id == 2 ? (
+                      <Image
+                        source={require('../assets/icon/check_mark.png')}
+                        style={{height: 20, width: 20, resizeMode: 'contain'}}
+                      />
+                    ) : selected_index_radius === null &&
+                      expandedFirestaion === true &&
+                      l.id == 3 ? (
+                      <Image
+                        source={require('../assets/icon/check_mark.png')}
+                        style={{height: 20, width: 20, resizeMode: 'contain'}}
+                      />
+                    ) : l.id === selected_index_radius ? (
                       <Image
                         source={require('../assets/icon/check_mark.png')}
                         style={{height: 20, width: 20, resizeMode: 'contain'}}
@@ -518,8 +592,10 @@ const EmergencyScreen = () => {
                           lon: item.lon,
                           name: item.tags.name,
                           address_line2:
-                            item?.tags?.amenity == 'fire_station'||item?.tags?.amenity == 'police'
-                              ? item?.tags?.['addr:housenumber'] +' '+
+                            item?.tags?.amenity == 'fire_station' ||
+                            item?.tags?.amenity == 'police'
+                              ? item?.tags?.['addr:housenumber'] +
+                                ' ' +
                                 item?.tags?.['addr:street']
                               : item?.tags?.['addr:full'],
                         },
@@ -829,13 +905,32 @@ const EmergencyScreen = () => {
           ListEmptyComponent={
             <>
               {isLoading ? (
+                // <View
+                //   style={{
+                //     height: windowHeight / 2,
+                //     alignItems: 'center',
+                //     justifyContent: 'center',
+                //   }}>
+                //   <ActivityIndicator size="large" />
+                // </View>
                 <View
                   style={{
-                    height: windowHeight / 2,
+                    backgroundColor: '#f2f2f2',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    height: windowHeight / 2,
                   }}>
-                  <ActivityIndicator size="large" />
+                  <LottieView
+                    source={require("../assets/animations/loader_earth.json")}
+                    autoPlay
+                    loop
+                    style={{
+                      height: windowWidth / 3,
+                      width: windowWidth / 3,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  />
                 </View>
               ) : (
                 <View

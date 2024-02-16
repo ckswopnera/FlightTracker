@@ -21,7 +21,7 @@ export default function BottomSheetVIew({params}) {
     bottomSheetModalRef.current?.present();
   }, []);
   useEffect(() => {
-    console.log(val);
+    console.log({val});
   }, [val]);
   return (
     <View>

@@ -1,16 +1,16 @@
 import React, {useState} from 'react';
 import {Text, View, TouchableOpacity} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
-import SearchScreen from './SearchScreen';
-import EmergencyScreen from './EmergencyScreen';
+import SearchScreen from '../SearchScreen';
+import EmergencyScreen from '../EmergencyScreen';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
-import WebViewScreen from './WebViewScreen';
-import BottomSheetVIew from '../components/BottomSheetVIew';
-import TourismScreen from './TourismScreen';
+import WebViewScreen from '../WebViewScreen';
+import BottomSheetVIew from '../../components/BottomSheetVIew';
+import TourismScreen from '../TourismScreen';
 
 const Stack = createStackNavigator();
-export default function StackScreen() {
+export default function StackScreen_Search() {
   const [isVisibleDiameter, setIsVisibleDiameter] = useState(false);
   const navigation = useNavigation();
   return (

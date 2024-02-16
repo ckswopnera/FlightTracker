@@ -77,19 +77,21 @@ export default function TourismScreen(props) {
     if (placeDetails !== undefined) {
       for (const query of placeDetails) {
         if (query?.name !== undefined) {
-          // console.log('query', query.name);
+          // console.log('query', query);
           allResults.push(
             {
               title: 'My location',
               add: '',
               lat: my_Location?.latitude,
               lon: my_Location?.longitude,
+              categories: '',
             },
             {
               title: query.name,
               add: query?.address_line2,
               lat: query?.lat,
               lon: query?.lon,
+              categories: query?.categories,
             },
           );
         }
@@ -105,7 +107,8 @@ export default function TourismScreen(props) {
     mapLocation();
     getDetailsByName_wikipedia(props?.route?.params?.place_details[0].name);
     getImagesByName_wikipedia(props?.route?.params?.place_details[0].name);
-    // console.log('det', props?.route?.params?.place_details.length);
+    // chatGpt_text_search('Write something creative.');
+    // console.log('det', props?.route?.params?.place_details[0]);
     // console.log("loc",props?.route?.params?.myLocation)
   }, []);
 
@@ -121,16 +124,12 @@ export default function TourismScreen(props) {
       for (const key in opensearchData.query.pages) {
         if (opensearchData.query.pages.hasOwnProperty(key)) {
           const value = opensearchData.query.pages[key];
-          // console.log(`Key: ${key}`);
-          // console.log(`Value:`, value);
-          // setNearBy(value);
           allResults.push(value?.thumbnail?.source);
 
           // break;
         }
       }
-      console.log('All results:', allResults);
-
+      // console.log('All results:', allResults);
       setImages(allResults);
     } catch {
       err => console.log(err);
@@ -138,6 +137,7 @@ export default function TourismScreen(props) {
   };
   const getDetailsByName_wikipedia = async name => {
     setLoading(true);
+    // console.log({name});
 
     try {
       const data = await fetch(
@@ -150,7 +150,7 @@ export default function TourismScreen(props) {
         if (opensearchData.query.pages.hasOwnProperty(key)) {
           const value = opensearchData.query.pages[key];
           // console.log(`Key: ${key}`);
-          // console.log(`Value:`, value);
+          console.log('Value:', value);
           setNearBy(value);
           // setImages(value?.thumbnail?.source);
           break;
@@ -167,14 +167,64 @@ export default function TourismScreen(props) {
   };
 
   const generateMarkersScript = () => {
-    // console.log(markers)
     return markers
       ?.map(
         marker =>
-          `L.marker([${marker?.lat}, ${marker?.lon}]).bindPopup("${marker?.title}<br>${marker?.add}").addTo(map);`,
+          `L.marker([${marker?.lat}, ${
+            marker?.lon
+          }], {icon: L.icon({iconUrl: 'https://api.geoapify.com/v1/icon/?type=material&color=red&apiKey=${GEOAPIFY_API_KEY}'})}).bindPopup("${
+            marker?.title
+          }${marker?.add ? '<br>' + marker?.add : ''}${
+            marker?.categories
+              ? '<br>' +
+                '<br>' +
+                marker?.categories.toString().split(',').join('<br />')
+              : ''
+          }").addTo(map);`,
       )
       .join('\n');
   };
+  // const generateMarkersScript = async () => {
+  //   // Fetch OSRM route information
+  //   const osrmUrl = 'https://router.project-osrm.org/route/v1/car/' +
+  //     parseFloat(markers[0]?.lat).toFixed(6) + ',' +
+  //     parseFloat(markers[0]?.lon).toFixed(6) + ';' +
+  //     parseFloat(markers[1]?.lat).toFixed(6) + ',' +
+  //     parseFloat(markers[1]?.lon).toFixed(6) +
+  //     '?overview=simplified' +
+  //     '&alternatives=3' +
+  //     '&steps=false' +
+  //     '&annotations=false' +
+  //     '&geometries=geojson';
+  
+  //   let osrmRoute;
+  //   try {
+  //     const response = await fetch(osrmUrl);
+  //     const data = await response.json();
+  //     osrmRoute = data.routes[0].geometry.coordinates;
+  //   } catch (error) {
+  //     console.error('Error fetching OSRM route:', error);
+  //   }
+  
+  //   // Create markers and polyline
+  //   return markers
+  //     ?.map(
+  //       (marker, index) =>
+  //         `L.marker([${marker?.lat}, ${marker?.lon}], {icon: L.icon({iconUrl: 'https://api.geoapify.com/v1/icon/?type=material&color=red&apiKey=${GEOAPIFY_API_KEY}'})}).bindPopup("${
+  //           marker?.title
+  //         }${marker?.add ? '<br>' + marker?.add : ''}${
+  //           marker?.categories
+  //             ? '<br>' +
+  //               '<br>' +
+  //               marker?.categories.toString().split(',').join('<br />')
+  //             : ''
+  //         }").addTo(map);`
+  //     )
+  //     .join('\n') +
+  //     (osrmRoute
+  //       ? `\nL.polyline(${JSON.stringify(osrmRoute)}, { color: 'blue' }).addTo(map);`
+  //       : '');
+  // };
   const htmlContent = `
         <!DOCTYPE html>
         <html>
@@ -247,7 +297,7 @@ export default function TourismScreen(props) {
           </body>
         </html>
       `;
-  const htmlContent_for_undefine = `
+  const htmlContent_for_undefined = `
   <!DOCTYPE html>
   <html>
     <head>
@@ -315,7 +365,7 @@ export default function TourismScreen(props) {
         />
       ) : (
         <WebView
-          source={{html: htmlContent_for_undefine}}
+          source={{html: htmlContent_for_undefined}}
           javaScriptEnabled={true}
           domStorageEnabled={true}
           // automaticallyAdjustContentInsets={false}

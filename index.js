@@ -7,4 +7,4 @@ import App from './App';
 import {name as appName} from './app.json';
 import Start from './Redux/Start';
 
-AppRegistry.registerComponent(appName, () => Start);
+AppRegistry.registerComponent(appName, () => App);

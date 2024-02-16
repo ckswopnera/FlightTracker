@@ -18,7 +18,6 @@ import HotelScreen from './HotelScreen';
 import TransportScreen from './TransportScreen';
 import Header from '../components/Header';
 
-
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 const Tab = createMaterialTopTabNavigator();
@@ -64,7 +63,7 @@ const CustomTabIcon = ({route, focused}) => {
 
 export default function SearchScreen() {
   return (
-    <View style={{flex:1}}>
+    <View style={{flex: 1}}>
       {/* <View style={styles.header}>
             <Text
               style={{
@@ -100,62 +99,61 @@ export default function SearchScreen() {
               Welcome to Flighttrack
             </Text>
           </View> */}
-   <Header/>
-         <Tab.Navigator
-          initialRouteName="Flight"
-          screenOptions={({route}) => {
-            // console.log(route);
-            return {
-              tabBarIcon: ({focused}) => (
-                <CustomTabIcon route={route} focused={focused} />
-              ),
-              tabBarShowIcon: true,
-              tabBarShowLabel: false,
-              swipeEnabled: false,
-              // tabBarScrollEnabled:false,
-              inactiveTintColor: '#ffffff',
-              activeTintColor: '#ffffff',
-              tabBarStyle: {backgroundColor: '#f3f3f3', height: 76},
-              tabBarIconStyle: {
-                height: 55,
-                width: 55,
-                // backgroundColor:'red',
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignSelf: 'center',
-                borderRadius: 14,
-              },
-              tabBarIndicatorStyle: {
-                backgroundColor: 'transparent',
-              },
-            };
-          }}>
-          <Tab.Screen
-            name="Flight"
-            component={FlightScreen}
-            // options={{
-            //   tabBarIcon: ({focused}) => (
-            //     <Ionicons
-            //       name="airplane"
-            //       size={40}
-            //       color={focused==true?"#000":'#fff'}
-            //       style={{
-            //         transform: [{rotateZ: '-45deg'}],
-            //         height: 30,
-            //         justifyContent: 'center',
-            //         alignContent: 'center',
-            //       }}
-            //     />
-            //   ),
-            // }}
-          />
-          <Tab.Screen name="Hotel" component={HotelScreen} />
-          <Tab.Screen name="Transport" component={TransportScreen} />
-        </Tab.Navigator>
-        </View>
+      <Header />
+      <Tab.Navigator
+        initialRouteName="Flight"
+        screenOptions={({route}) => {
+          // console.log(route);
+          return {
+            tabBarIcon: ({focused}) => (
+              <CustomTabIcon route={route} focused={focused} />
+            ),
+            tabBarShowIcon: true,
+            tabBarShowLabel: false,
+            swipeEnabled: false,
+            // tabBarScrollEnabled:false,
+            inactiveTintColor: '#ffffff',
+            activeTintColor: '#ffffff',
+            tabBarStyle: {backgroundColor: '#f3f3f3', height: 76},
+            tabBarIconStyle: {
+              height: 55,
+              width: 55,
+              // backgroundColor:'red',
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignSelf: 'center',
+              borderRadius: 14,
+            },
+            tabBarIndicatorStyle: {
+              backgroundColor: 'transparent',
+            },
+          };
+        }}>
+        <Tab.Screen
+          name="Flight"
+          component={FlightScreen}
+          // options={{
+          //   tabBarIcon: ({focused}) => (
+          //     <Ionicons
+          //       name="airplane"
+          //       size={40}
+          //       color={focused==true?"#000":'#fff'}
+          //       style={{
+          //         transform: [{rotateZ: '-45deg'}],
+          //         height: 30,
+          //         justifyContent: 'center',
+          //         alignContent: 'center',
+          //       }}
+          //     />
+          //   ),
+          // }}
+        />
+        <Tab.Screen name="Hotel" component={HotelScreen} />
+        <Tab.Screen name="Transport" component={TransportScreen} />
+      </Tab.Navigator>
+    </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -174,4 +172,3 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 });
-
