@@ -119,6 +119,7 @@ export default function ExploreScreen() {
               fontSize: 22,
               fontWeight: 'bold',
               marginBottom: 4,
+              color:'#333'
             }}>
             {budget_slider_value}+
           </Text>
@@ -129,7 +130,7 @@ export default function ExploreScreen() {
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Text style={{textAlign: 'center', padding: 2}}>{minBudget}</Text>
+            <Text style={{textAlign: 'center', padding: 2,color:'#333'}}>{minBudget}</Text>
             <Slider
               // step={1.0}
               style={styles.container}
@@ -150,7 +151,7 @@ export default function ExploreScreen() {
                 setbudget_slider_value(Math.floor(e));
               }}
             />
-            <Text style={{textAlign: 'center', padding: 2}}>{maxBudget}+</Text>
+            <Text style={{textAlign: 'center', padding: 2,color:'#333'}}>{maxBudget}+</Text>
           </View>
           <TouchableOpacity
             style={{
@@ -168,7 +169,7 @@ export default function ExploreScreen() {
                 : setopenViewCheck(false);
               setopenView(null);
             }}>
-            <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16}}>
+            <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16,color:'#666'}}>
               {done}
             </Text>
           </TouchableOpacity>
@@ -227,7 +228,7 @@ export default function ExploreScreen() {
                   : setopenViewCheck(false);
                 setopenView(null);
               }}>
-              <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16}}>
+              <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16,color:'#333'}}>
                 {done}
               </Text>
             </TouchableOpacity>
@@ -376,7 +377,7 @@ export default function ExploreScreen() {
                 : setopenViewCheck(false);
               setopenView(null);
             }}>
-            <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16}}>
+            <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16,color:'#333'}}>
               {done}
             </Text>
           </TouchableOpacity>
@@ -409,8 +410,8 @@ export default function ExploreScreen() {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <Ionicons name="information-circle" />
-          <Text style={{padding: 10, fontWeight: '600', textAlign: 'center'}}>
+          <Ionicons name="information-circle" color={'#333'}/>
+          <Text style={{padding: 10, fontWeight: '600', textAlign: 'center',color:'#333'}}>
             {explore_cheap_price_tag}
           </Text>
         </View>

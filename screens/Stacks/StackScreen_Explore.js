@@ -18,9 +18,9 @@ export default function StackScreen_Explore() {
   const [isVisibleDiameter, setIsVisibleDiameter] = useState(false);
   const navigation = useNavigation();
   const [airportData, setairportData] = useState([]);
-  useEffect(() => {
-    // airportCheck().then((e)=>{console.log({e});setairportData(e)})
-  }, []);
+  // useEffect(() => {
+  //   airportCheck().then((e)=>{console.log({e});setairportData(e)})
+  // }, []);
   return (
     <Stack.Navigator>
       <Stack.Screen
