@@ -4,7 +4,7 @@ const lat = 22.639416535722226;
 const long = 88.34107229852647;
 const radius_airport = 50000;
 const day = 10;
-var monthNames = [
+const monthNames = [
   'Jan',
   'Feb',
   'Mar',
@@ -18,6 +18,24 @@ var monthNames = [
   'Nov',
   'Dec',
 ];
+
+export const monthNames2 = monthIndex=> {
+  const monthSort=[
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+return monthSort[monthIndex]
+}
 const apiUrl = 'https://overpass-api.de/api/interpreter';
 export const airportCheck = async () => {
   // Overpass query to get information about airports
@@ -71,21 +89,54 @@ export const getDateAfterGivenDays = days => {
 };
 
 export const getSelectedDatesInShort = timestamp => {
+  if (timestamp !== null) {
+    // Convert the timestamp to a Date object
+    var date = new Date(timestamp);
+
+    // Extract the date part
+    var year = date.getFullYear();
+    // var month = date.getMonth() + 1; // Month is zero-based, so we add 1
+    var monthIndex = date.getMonth();
+
+    var day = date.getDate();
+    // Format the date as 'YYYY-MM-DD'
+    // var formattedDate = year + "-" + (month < 10 ? '0' : '') + month + "-" + (day < 10 ? '0' : '') + day;
+    // console.log(formattedDate); // Output: 2024-02-18
+
+    var formattedDate =
+      (day < 10 ? '0' : '') + day + ' ' + `${monthNames2(monthIndex)}`+' '+year; // Output: 18 Feb
+
+    return formattedDate;
+  } else {
+    var formattedDate = '';
+    return formattedDate;
+  }
+};
+
+export const getRangeMonthInSort = timestamp => {
   // Convert the timestamp to a Date object
   var date = new Date(timestamp);
 
-  // Extract the date part
-  var year = date.getFullYear();
-  // var month = date.getMonth() + 1; // Month is zero-based, so we add 1
   var monthIndex = date.getMonth();
+  var formattedDate = `${monthNames2(monthIndex)}`; // Output: Feb
 
-  var day = date.getDate();
-  // Format the date as 'YYYY-MM-DD'
-  // var formattedDate = year + "-" + (month < 10 ? '0' : '') + month + "-" + (day < 10 ? '0' : '') + day;
-  // console.log(formattedDate); // Output: 2024-02-18
+  // console.log({futureformattedDate}, {formattedDate2});
+  return formattedDate;
+};
 
-  var formattedDate =
-    (day < 10 ? '0' : '') + day + ' ' + monthNames[monthIndex];  // Output: 18 Feb
+export const getRangeMonthFutureInSort = timestamp => {
+  const date = new Date(timestamp);
+  // console.log({date})
+  const futureformattedDate = date.setDate(date.getDate() + 24*2*7);
+  // console.log({futureformattedDate});
+  const date2 = new Date(futureformattedDate);
 
+  // Extract the date part
+  var year = date2.getFullYear();
+  // var month = date.getMonth() + 1; // Month is zero-based, so we add 1
+  var monthIndex = date2.getMonth();
+
+  var formattedDate = `${monthNames2(monthIndex)}` + ' ' + year;
+  // console.log({formattedDate});
   return formattedDate;
 };

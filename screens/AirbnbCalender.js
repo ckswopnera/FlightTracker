@@ -34,8 +34,10 @@ export default class AirbnbCalender extends Component {
     });
 
     console.log({startDate}, {endDate});
-
+    
     console.log({testDateStart});
+    console.log({testDateEnd});
+
     // console.log('getStartDateInStringSort',this.state.getStartDateInStringSort);
   }
   openCalendar() {

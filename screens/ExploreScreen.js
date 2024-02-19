@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Image,
+  ImageBackground,
 } from 'react-native';
 import React, {Component, useEffect, useState} from 'react';
 import {airportCheck} from '../util/functions';
@@ -53,6 +54,9 @@ export default function ExploreScreen() {
   const [checkboxState, setcheckboxState] = useState(false);
   const [themeCheckData, setthemeCheckData] = useState(null);
   const [distance_slider_value, setdistance_slider_value] = useState(null);
+  const [distance_stop_selected_value, setdistance_stop_selected_value] =
+    useState(null);
+
   const [budget_slider_value, setbudget_slider_value] = useState(100000);
 
   // useEffect(() => {
@@ -64,129 +68,145 @@ export default function ExploreScreen() {
       style={{
         flex: 1,
       }}>
-      <View
+      <ImageBackground
+        source={require('../assets/image/maps/Map-of-all-airports-included-in-risk-model.png')}
+        resizeMode="cover"
         style={{
-          // flex: 0.1,
-          flexDirection: 'row',
-          justifyContent: 'space-evenly',
-          alignItems: 'flex-start',
+          flex: 1,
+          // justifyContent: 'center',
         }}>
-        {items.map((item, index) => {
-          return (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                setopenView(item);
-                setopenViewCheck(true);
-              }}>
-              <View
-                key={index}
-                style={{
-                  width: windowWidth / 4 - 4,
-                  height: 40,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor:
-                    item?.id === openView?.id ? '#000' : 'rgba(0,0,0,0.2)',
-                  borderRadius: 6,
-                  // padding: 8,
-                }}>
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    color: item?.id === openView?.id ? '#fff' : '#000',
-                  }}>
-                  {item.value}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      {openView?.value === 'Budget' && openViewCheck === true ? (
         <View
           style={{
-            backgroundColor: '#fff',
-            // marginTop: 40,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingTop:14
+            // flex: 0.1,
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            alignItems: 'flex-start',
+            marginTop: 14,
+            // position:'absolute',top:0,
           }}>
-          <Text
-            style={{
-              textAlign: 'center',
-              padding: 2,
-              fontSize: 22,
-              fontWeight: 'bold',
-              marginBottom: 4,
-              color: '#333',
-            }}>
-            {budget_slider_value}+
-          </Text>
-
+          {items.map((item, index) => {
+            return (
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  setopenView(item);
+                  setopenViewCheck(true);
+                }}>
+                <View
+                  key={index}
+                  style={{
+                    width: windowWidth / 4 - 4,
+                    height: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor:
+                      item?.id === openView?.id
+                        ? '#000'
+                        : 'rgba(255,255,255,1)',
+                    borderRadius: 6,
+                    // padding: 8,
+                  }}>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      color: item?.id === openView?.id ? '#fff' : '#000',
+                    }}>
+                    {item.value}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {openView?.value === 'Budget' && openViewCheck === true ? (
           <View
             style={{
-              flexDirection: 'row',
+              backgroundColor: '#fff',
+              marginTop: 4,
               alignItems: 'center',
               justifyContent: 'center',
-            }}>
-            <Text style={{textAlign: 'center', padding: 2, color: '#333'}}>
-              {minBudget}
-            </Text>
-            <Slider
-              // step={1.0}
-              style={styles.container}
-              progress={progress}
-              minimumValue={min}
-              maximumValue={max}
-              sliderHeight={3}
-              theme={{
-                disableMinTrackTintColor: '#fff',
-                maximumTrackTintColor: 'rgba(0,0,0,0.2)',
-                minimumTrackTintColor: '#222',
-                cacheTrackTintColor: '#333',
-                bubbleBackgroundColor: '#666',
-                heartbeatColor: '#999',
-              }}
-              onValueChange={e => {
-                console.log(Math.floor(e));
-                setbudget_slider_value(Math.floor(e));
-              }}
-            />
-            <Text style={{textAlign: 'center', padding: 2, color: '#333'}}>
-              {maxBudget}+
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderTopWidth: 0.2,
-              // borderRadius: 6,
-              borderColor: 'rgba(0,0,0,0.1)',
-              marginTop: 16,
-            }}
-            onPress={() => {
-              openViewCheck === false
-                ? setopenViewCheck(true)
-                : setopenViewCheck(false);
-              setopenView(null);
+              paddingTop: 14,
             }}>
             <Text
               style={{
-                padding: 10,
+                textAlign: 'center',
+                padding: 2,
+                fontSize: 22,
                 fontWeight: 'bold',
-                fontSize: 16,
-                color: '#666',
+                marginBottom: 4,
+                color: '#333',
               }}>
-              {done}
+              {budget_slider_value===150000?`${budget_slider_value}+`:budget_slider_value}
             </Text>
-          </TouchableOpacity>
-        </View>
-      ) : openView?.value === 'Themes' && openViewCheck === true ? (
-        <View style={{backgroundColor:'#fff',paddingVertical:4,}}>
 
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{textAlign: 'center', padding: 2, color: '#333'}}>
+                {minBudget}
+              </Text>
+              <Slider
+                // step={1.0}
+                style={styles.container}
+                progress={progress}
+                minimumValue={min}
+                maximumValue={max}
+                sliderHeight={3}
+                theme={{
+                  disableMinTrackTintColor: '#fff',
+                  maximumTrackTintColor: 'rgba(0,0,0,0.2)',
+                  minimumTrackTintColor: '#222',
+                  cacheTrackTintColor: '#333',
+                  bubbleBackgroundColor: '#666',
+                  heartbeatColor: '#999',
+                }}
+                onValueChange={e => {
+                  console.log(Math.floor(e));
+                  setbudget_slider_value(Math.floor(e));
+                }}
+              />
+              <Text style={{textAlign: 'center', padding: 2, color: '#333'}}>
+                {maxBudget}+
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={{
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopWidth: 0.2,
+                // borderRadius: 6,
+                borderColor: 'rgba(0,0,0,0.1)',
+                marginTop: 16,
+              }}
+              onPress={() => {
+                openViewCheck === false
+                  ? setopenViewCheck(true)
+                  : setopenViewCheck(false);
+                setopenView(null);
+              }}>
+              <Text
+                style={{
+                  padding: 10,
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  color: '#666',
+                }}>
+                {done}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : openView?.value === 'Themes' && openViewCheck === true ? (
+          <View
+            style={{
+              backgroundColor: '#fff',
+              paddingVertical: 4,
+
+              marginTop: 4,
+            }}>
             {picker_for_explore_themes?.map((i, j) => {
               return (
                 <BouncyCheckbox
@@ -197,8 +217,8 @@ export default function ExploreScreen() {
                   }}
                   size={25}
                   isChecked={i?.value === themeCheckData?.value ? true : false}
-                  fillColor="#333"
-                  unfillColor="rgba(0,0,0,0.2)"
+                  fillColor={Colors.primary}
+                  unfillColor="rgba(0,0,0,0.1)"
                   text={i?.value}
                   disableBuiltInState
                   iconStyle={{borderColor: 'red'}}
@@ -217,12 +237,12 @@ export default function ExploreScreen() {
             <TouchableOpacity
               style={{
                 width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderTopWidth: 0.2,
-              // borderRadius: 6,
-              borderColor: 'rgba(0,0,0,0.1)',
-              marginTop: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopWidth: 0.2,
+                // borderRadius: 6,
+                borderColor: 'rgba(0,0,0,0.1)',
+                marginTop: 16,
               }}
               onPress={() => {
                 openViewCheck === false
@@ -235,65 +255,66 @@ export default function ExploreScreen() {
                   padding: 10,
                   fontWeight: 'bold',
                   fontSize: 16,
-                  color: '#333',textAlign:'center'
+                  color: '#333',
+                  textAlign: 'center',
                 }}>
                 {done}
               </Text>
             </TouchableOpacity>
-         
-        </View>
-      ) : openView?.value === 'Distance' && openViewCheck === true ? (
-        <View style={{backgroundColor:'#fff',paddingVertical:4 ,}}>
-          <Text
-            style={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              fontSize: 16,
-              color: '#000',
-              marginTop: 16,
-            }}>
-            Stops
-          </Text>
+          </View>
+        ) : openView?.value === 'Distance' && openViewCheck === true ? (
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-evenly',
-              marginTop: 16,
-            }}>
-            {picker_for_explore_Distance.map((i, j) => {
-              return (
-                <View
-                  key={j}
-                  style={{
-                    padding: 6,
-                    borderWidth: 0.5,
-                    borderColor: '#666',
-                    width: 100,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Image
-                    source={require('../assets/icon/arrow-down.png')}
-                    style={{
-                      height: 20,
-                      width: 40,
-                      transform: [{rotate: '0deg'}, {scaleX: -1}],
-                    }}
-                  />
+              backgroundColor: '#fff',
+              paddingVertical: 4,
 
-                  {i?.value === '1 stop' ? (
-                    <View
+              marginTop: 4,
+            }}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: '#000',
+                marginTop: 16,
+              }}>
+              Stops
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                marginTop: 16,
+              }}>
+              {picker_for_explore_Distance.map((i, j) => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log({i});
+                      setdistance_stop_selected_value(i);
+                    }}
+                    key={j}
+                    style={{
+                      padding: 6,
+                      borderWidth: 0.5,
+                      borderColor:
+                        distance_stop_selected_value?.value === i?.value
+                          ? Colors.primary
+                          : '#666',
+                      width: 100,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <Image
+                      source={require('../assets/icon/arrow-down.png')}
                       style={{
-                        width: 8,
-                        borderRadius: 8,
-                        height: 8,
-                        position: 'absolute',
-                        top: 3,
-                        backgroundColor: '#000',
+                        height: 20,
+                        width: 40,
+                        transform: [{rotate: '0deg'}, {scaleX: -1}],
                       }}
                     />
-                  ) : i?.value === 'Any' ? (
-                    <>
+
+                    {i?.value === '1 stop' ? (
                       <View
                         style={{
                           width: 8,
@@ -304,165 +325,190 @@ export default function ExploreScreen() {
                           backgroundColor: '#000',
                         }}
                       />
-                      <View
-                        style={{
-                          width: 8,
-                          borderRadius: 8,
-                          height: 8,
-                          position: 'absolute',
-                          top: 10,
-                          backgroundColor: '#000',
-                          left: 33,
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                  <Text
-                    style={{textAlign: 'center', fontSize: 16, color: '#000'}}>
-                    {i?.value}
-                  </Text>
-                </View>
-              );
-            })}
+                    ) : i?.value === 'Any' ? (
+                      <>
+                        <View
+                          style={{
+                            width: 8,
+                            borderRadius: 8,
+                            height: 8,
+                            position: 'absolute',
+                            top: 3,
+                            backgroundColor: '#000',
+                          }}
+                        />
+                        <View
+                          style={{
+                            width: 8,
+                            borderRadius: 8,
+                            height: 8,
+                            position: 'absolute',
+                            top: 10,
+                            backgroundColor: '#000',
+                            left: 33,
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                    <Text
+                      style={{
+                        textAlign: 'center',
+                        fontSize: 16,
+                        color:
+                          distance_stop_selected_value?.value === i?.value
+                            ? Colors.primary
+                            : '#666',
+                      }}>
+                      {i?.value}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: '#000',
+                marginTop: 16,
+              }}>
+              {distance_slider_value === null
+                ? 'Any flight duration'
+                : `Under ${distance_slider_value} hours`}
+            </Text>
+            <View
+              style={{
+                // backgroundColor: '#f2f2f2',
+                // height: 150,
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 2,
+              }}>
+              <Slider
+                // step={24}
+                style={{width: '80%', marginTop: 16}}
+                progress={progress2}
+                minimumValue={min2}
+                maximumValue={max2}
+                sliderHeight={3}
+                theme={{
+                  disableMinTrackTintColor: '#fff',
+                  maximumTrackTintColor: 'rgba(0,0,0,0.2)',
+                  minimumTrackTintColor: '#222',
+                  cacheTrackTintColor: '#333',
+                  bubbleBackgroundColor: '#666',
+                  heartbeatColor: '#999',
+                }}
+                onValueChange={e => {
+                  console.log(Math.floor(e));
+                  setdistance_slider_value(Math.floor(e));
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              style={{
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopWidth: 0.2,
+                // borderRadius: 6,
+                borderColor: 'rgba(0,0,0,0.1)',
+                marginTop: 16,
+              }}
+              onPress={() => {
+                openViewCheck === false
+                  ? setopenViewCheck(true)
+                  : setopenViewCheck(false);
+                setopenView(null);
+              }}>
+              <Text
+                style={{
+                  padding: 10,
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  color: '#333',
+                }}>
+                {done}
+              </Text>
+            </TouchableOpacity>
           </View>
-          <Text
-            style={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              fontSize: 16,
-              color: '#000',
-              marginTop: 16,
-            }}>
-            {distance_slider_value === null
-              ? 'Any flight duration'
-              : `Under ${distance_slider_value} hours`}
-          </Text>
+        ) : openView?.value === 'Dates' && openViewCheck === true ? (
           <View
             style={{
-              // backgroundColor: '#f2f2f2',
-              // height: 150,
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 2,
+              height: 200,
+              backgroundColor: '#fff',
+
+              marginTop: 4,
             }}>
-            <Slider
-              // step={24}
-              style={{width: '80%', marginTop: 16}}
-              progress={progress2}
-              minimumValue={min2}
-              maximumValue={max2}
-              sliderHeight={3}
-              theme={{
-                disableMinTrackTintColor: '#fff',
-                maximumTrackTintColor: 'rgba(0,0,0,0.2)',
-                minimumTrackTintColor: '#222',
-                cacheTrackTintColor: '#333',
-                bubbleBackgroundColor: '#666',
-                heartbeatColor: '#999',
+            <Tab.Navigator
+              screenOptions={{
+                swipeEnabled: false,
+                tabBarLabelStyle: {textTransform: 'none'},
+              }}>
+              <Tab.Screen
+                options={{tabBarLabel: 'Exact Dates'}}
+                name="Exact Dates"
+                component={ExactDates}
+              />
+              <Tab.Screen
+                options={{tabBarLabel: 'Date Range'}}
+                name="Date Range"
+                component={DateRange}
+              />
+            </Tab.Navigator>
+            <TouchableOpacity
+              style={{
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopWidth: 0.2,
+                // borderRadius: 6,
+                borderColor: 'rgba(0,0,0,0.1)',
+                marginTop: 16,
               }}
-              onValueChange={e => {
-                console.log(Math.floor(e));
-                setdistance_slider_value(Math.floor(e));
-              }}
-            />
+              onPress={() => {
+                openViewCheck === false
+                  ? setopenViewCheck(true)
+                  : setopenViewCheck(false);
+                setopenView(null);
+              }}>
+              <Text
+                style={{
+                  padding: 10,
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  color: '#666',
+                }}>
+                {done}
+              </Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
+        ) : (
+          <></>
+        )}
+        {openViewCheck === false && (
+          <View
             style={{
-              width: '100%',
+              flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              borderTopWidth: 0.2,
-              // borderRadius: 6,
-              borderColor: 'rgba(0,0,0,0.1)',
-              marginTop: 16,
-            }}
-            onPress={() => {
-              openViewCheck === false
-                ? setopenViewCheck(true)
-                : setopenViewCheck(false);
-              setopenView(null);
             }}>
+            <Ionicons name="information-circle" color={'#333'} />
             <Text
               style={{
                 padding: 10,
-                fontWeight: 'bold',
-                fontSize: 16,
+                fontWeight: '600',
+                textAlign: 'center',
                 color: '#333',
               }}>
-              {done}
+              {explore_cheap_price_tag}
             </Text>
-          </TouchableOpacity>
-        </View>
-      ) : openView?.value === 'Dates' && openViewCheck === true ? (
-        <View style={{height:200,backgroundColor:'#fff'}}>
-          <Tab.Navigator
-            screenOptions={{
-              swipeEnabled: false,
-              tabBarLabelStyle: {textTransform: 'none'},
-            }}>
-            <Tab.Screen
-            
-              options={{tabBarLabel: 'Exact Dates',}}
-              name="Exact Dates"
-              component={ExactDates}
-            />
-            <Tab.Screen
-              options={{tabBarLabel: 'Date Range'}}
-              name="Date Range"
-              component={DateRange}
-            />
-          </Tab.Navigator>
-          <TouchableOpacity
-            style={{
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderTopWidth: 0.2,
-              // borderRadius: 6,
-              borderColor: 'rgba(0,0,0,0.1)',
-              marginTop: 16,
-            }}
-            onPress={() => {
-              openViewCheck === false
-                ? setopenViewCheck(true)
-                : setopenViewCheck(false);
-              setopenView(null);
-            }}>
-            <Text
-              style={{
-                padding: 10,
-                fontWeight: 'bold',
-                fontSize: 16,
-                color: '#666',
-              }}>
-              {done}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <></>
-      )}
-      {openViewCheck === false && (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Ionicons name="information-circle" color={'#333'} />
-          <Text
-            style={{
-              padding: 10,
-              fontWeight: '600',
-              textAlign: 'center',
-              color: '#333',
-            }}>
-            {explore_cheap_price_tag}
-          </Text>
-        </View>
-      )}
+          </View>
+        )}
+      </ImageBackground>
     </SafeAreaView>
   );
 }
