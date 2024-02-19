@@ -3,7 +3,21 @@ import {aviation_url} from './url';
 const lat = 22.639416535722226;
 const long = 88.34107229852647;
 const radius_airport = 50000;
-
+const day = 10;
+var monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 const apiUrl = 'https://overpass-api.de/api/interpreter';
 export const airportCheck = async () => {
   // Overpass query to get information about airports
@@ -44,4 +58,34 @@ export const flightApi = async () => {
     .catch(error => {
       console.error(error);
     });
+};
+
+export const getDateAfterGivenDays = days => {
+  var time = new Date();
+  var parsedDays = parseInt(days);
+
+  time.setDate(time.getDate() + parsedDays);
+
+  var strdate = time.toISOString().split('T')[0];
+  return strdate;
+};
+
+export const getSelectedDatesInShort = timestamp => {
+  // Convert the timestamp to a Date object
+  var date = new Date(timestamp);
+
+  // Extract the date part
+  var year = date.getFullYear();
+  // var month = date.getMonth() + 1; // Month is zero-based, so we add 1
+  var monthIndex = date.getMonth();
+
+  var day = date.getDate();
+  // Format the date as 'YYYY-MM-DD'
+  // var formattedDate = year + "-" + (month < 10 ? '0' : '') + month + "-" + (day < 10 ? '0' : '') + day;
+  // console.log(formattedDate); // Output: 2024-02-18
+
+  var formattedDate =
+    (day < 10 ? '0' : '') + day + ' ' + monthNames[monthIndex];  // Output: 18 Feb
+
+  return formattedDate;
 };

@@ -4,11 +4,7 @@ import {Calendar, defaultStyle} from 'react-native-calendars';
 
 const XDate = require('xdate');
 
-type Props = {
-  initialRange: React.PropTypes.array.isRequired,
-  onSuccess: React.PropTypes.func.isRequired,
-};
-export default class DateRangePicker extends Component<Props> {
+export default class DateRangePicker extends Component {
   state = {isFromDatePicked: false, isToDatePicked: false, markedDates: {}};
 
   componentDidMount() {
@@ -111,6 +107,12 @@ export default class DateRangePicker extends Component<Props> {
 
   render() {
     return (
+      <>
+       {/* <Calendar {...this.props}
+                markingType={'period'}
+                current={this.state.fromDate}
+                 markedDates={this.state.markedDates}
+                 onDayPress={(day) => {this.onDayPress(day)}}/> */}
       <View style={styles.container}>
         <ScrollView vertical showsVerticalScrollIndicator={false}>
           {[...Array(12)].map((_, index) => {
@@ -129,13 +131,14 @@ export default class DateRangePicker extends Component<Props> {
                   onDayPress={day => {
                     this.onDayPress(day);
                   }}
-                  hideArrows
+                  // hideArrows
                 />
               </View>
             );
           })}
         </ScrollView>
       </View>
+      </>
     );
   }
 }

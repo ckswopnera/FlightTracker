@@ -106,11 +106,11 @@ export default function ExploreScreen() {
       {openView?.value === 'Budget' && openViewCheck === true ? (
         <View
           style={{
-            backgroundColor: '#f2f2f2',
-            marginTop: 40,
+            backgroundColor: '#fff',
+            // marginTop: 40,
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 2,
+            paddingTop:14
           }}>
           <Text
             style={{
@@ -119,7 +119,7 @@ export default function ExploreScreen() {
               fontSize: 22,
               fontWeight: 'bold',
               marginBottom: 4,
-              color:'#333'
+              color: '#333',
             }}>
             {budget_slider_value}+
           </Text>
@@ -130,7 +130,9 @@ export default function ExploreScreen() {
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Text style={{textAlign: 'center', padding: 2,color:'#333'}}>{minBudget}</Text>
+            <Text style={{textAlign: 'center', padding: 2, color: '#333'}}>
+              {minBudget}
+            </Text>
             <Slider
               // step={1.0}
               style={styles.container}
@@ -151,16 +153,18 @@ export default function ExploreScreen() {
                 setbudget_slider_value(Math.floor(e));
               }}
             />
-            <Text style={{textAlign: 'center', padding: 2,color:'#333'}}>{maxBudget}+</Text>
+            <Text style={{textAlign: 'center', padding: 2, color: '#333'}}>
+              {maxBudget}+
+            </Text>
           </View>
           <TouchableOpacity
             style={{
-              width: '98%',
+              width: '100%',
               alignItems: 'center',
               justifyContent: 'center',
-              borderWidth: 0.5,
-              borderRadius: 6,
-              borderColor: '#333',
+              borderTopWidth: 0.2,
+              // borderRadius: 6,
+              borderColor: 'rgba(0,0,0,0.1)',
               marginTop: 16,
             }}
             onPress={() => {
@@ -169,21 +173,20 @@ export default function ExploreScreen() {
                 : setopenViewCheck(false);
               setopenView(null);
             }}>
-            <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16,color:'#666'}}>
+            <Text
+              style={{
+                padding: 10,
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: '#666',
+              }}>
               {done}
             </Text>
           </TouchableOpacity>
         </View>
       ) : openView?.value === 'Themes' && openViewCheck === true ? (
-        <>
-          <View
-            style={{
-              backgroundColor: '#f2f2f2',
-              //      alignItems: 'center',
-              // justifyContent: 'center',
-              padding: 2,
-              width: '100%',
-            }}>
+        <View style={{backgroundColor:'#fff',paddingVertical:4,}}>
+
             {picker_for_explore_themes?.map((i, j) => {
               return (
                 <BouncyCheckbox
@@ -213,14 +216,13 @@ export default function ExploreScreen() {
 
             <TouchableOpacity
               style={{
-                width: '98%',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: 0.5,
-                borderRadius: 6,
-                borderColor: '#333',
-                marginTop: 16,
-                marginLeft: 4,
+                width: '100%',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderTopWidth: 0.2,
+              // borderRadius: 6,
+              borderColor: 'rgba(0,0,0,0.1)',
+              marginTop: 16,
               }}
               onPress={() => {
                 openViewCheck === false
@@ -228,14 +230,20 @@ export default function ExploreScreen() {
                   : setopenViewCheck(false);
                 setopenView(null);
               }}>
-              <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16,color:'#333'}}>
+              <Text
+                style={{
+                  padding: 10,
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  color: '#333',textAlign:'center'
+                }}>
                 {done}
               </Text>
             </TouchableOpacity>
-          </View>
-        </>
+         
+        </View>
       ) : openView?.value === 'Distance' && openViewCheck === true ? (
-        <>
+        <View style={{backgroundColor:'#fff',paddingVertical:4 ,}}>
           <Text
             style={{
               textAlign: 'center',
@@ -362,14 +370,13 @@ export default function ExploreScreen() {
           </View>
           <TouchableOpacity
             style={{
-              width: '98%',
+              width: '100%',
               alignItems: 'center',
               justifyContent: 'center',
-              borderWidth: 0.5,
-              borderRadius: 6,
-              borderColor: '#333',
+              borderTopWidth: 0.2,
+              // borderRadius: 6,
+              borderColor: 'rgba(0,0,0,0.1)',
               marginTop: 16,
-              marginLeft: 4,
             }}
             onPress={() => {
               openViewCheck === false
@@ -377,29 +384,63 @@ export default function ExploreScreen() {
                 : setopenViewCheck(false);
               setopenView(null);
             }}>
-            <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16,color:'#333'}}>
+            <Text
+              style={{
+                padding: 10,
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: '#333',
+              }}>
               {done}
             </Text>
           </TouchableOpacity>
-        </>
+        </View>
       ) : openView?.value === 'Dates' && openViewCheck === true ? (
-        <Tab.Navigator
-          screenOptions={{
-            swipeEnabled:false,
-            tabBarLabelStyle: { textTransform: 'none' },
-          }}
-          >
-          <Tab.Screen
-            options={{tabBarLabel: 'Exact Dates'}}
-            name="Exact Dates"
-            component={ExactDates}
-          />
-          <Tab.Screen
-            options={{tabBarLabel: 'Date Range'}}
-            name="Date Range"
-            component={DateRange}
-          />
-        </Tab.Navigator>
+        <View style={{height:200,backgroundColor:'#fff'}}>
+          <Tab.Navigator
+            screenOptions={{
+              swipeEnabled: false,
+              tabBarLabelStyle: {textTransform: 'none'},
+            }}>
+            <Tab.Screen
+            
+              options={{tabBarLabel: 'Exact Dates',}}
+              name="Exact Dates"
+              component={ExactDates}
+            />
+            <Tab.Screen
+              options={{tabBarLabel: 'Date Range'}}
+              name="Date Range"
+              component={DateRange}
+            />
+          </Tab.Navigator>
+          <TouchableOpacity
+            style={{
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderTopWidth: 0.2,
+              // borderRadius: 6,
+              borderColor: 'rgba(0,0,0,0.1)',
+              marginTop: 16,
+            }}
+            onPress={() => {
+              openViewCheck === false
+                ? setopenViewCheck(true)
+                : setopenViewCheck(false);
+              setopenView(null);
+            }}>
+            <Text
+              style={{
+                padding: 10,
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: '#666',
+              }}>
+              {done}
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <></>
       )}
@@ -410,8 +451,14 @@ export default function ExploreScreen() {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <Ionicons name="information-circle" color={'#333'}/>
-          <Text style={{padding: 10, fontWeight: '600', textAlign: 'center',color:'#333'}}>
+          <Ionicons name="information-circle" color={'#333'} />
+          <Text
+            style={{
+              padding: 10,
+              fontWeight: '600',
+              textAlign: 'center',
+              color: '#333',
+            }}>
             {explore_cheap_price_tag}
           </Text>
         </View>
